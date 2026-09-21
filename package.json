@@ -1,0 +1,17 @@
+{
+  "name": "agent-usage-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
+  }
+}
