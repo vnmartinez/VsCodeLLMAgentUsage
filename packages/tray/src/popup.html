@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
+  <title>Agent Usage</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #1f1f1f; --fg: #e6e6e6; --muted: #9a9a9a; --track: #3a3a3a;
+      --normal: #2e9e5b; --warning: #d9a400; --critical: #d93a3a;
+    }
+    body { margin: 0; padding: 12px 14px; background: var(--bg); color: var(--fg); font: 13px 'Segoe UI', sans-serif; user-select: none; }
+    .agent { margin-bottom: 14px; }
+    .agent.unavailable { opacity: .55; }
+    .head { display: flex; justify-content: space-between; font-weight: 600; }
+    .status { font-weight: 400; color: var(--muted); font-size: 12px; }
+    .note { color: var(--muted); font-size: 12px; font-style: italic; margin-top: 2px; }
+    .limit { margin-top: 6px; }
+    .row { display: flex; justify-content: space-between; font-size: 12px; }
+    .reset { color: var(--muted); }
+    .track { height: 6px; background: var(--track); border-radius: 3px; margin-top: 3px; overflow: hidden; }
+    .fill { height: 100%; }
+    .fill.normal { background: var(--normal); }
+    .fill.warning { background: var(--warning); }
+    .fill.critical { background: var(--critical); }
+  </style>
+</head>
+<body>
+  <main id="root">carregando…</main>
+  <script src="popup.js"></script>
+</body>
+</html>

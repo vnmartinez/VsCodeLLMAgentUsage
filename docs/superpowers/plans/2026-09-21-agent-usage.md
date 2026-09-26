@@ -2310,7 +2310,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 - Consumes: de `@agent-usage/core`: `AGENTS`, `AGENT_LABEL`, `AgentSnapshot`, `AgentView`, `Band`, `band`, `buildViewModel`, `createDefaultCollector`, `windowMax`, `worstPct`.
 - Produces: `ICON_SIZE = 32`, `iconLabel(pct: number | null): string`, `renderIconBitmap(pct: number | null, band: Band | null): Buffer` (BGRA); `trayTooltip(snaps: AgentSnapshot[]): string`; canal IPC `model` (main → popup, `AgentView[]`) e `get-model` (invoke).
 
-- [ ] **Step 1: Criar o `package.json` do tray**
+- [x] **Step 1: Criar o `package.json` do tray**
 
 `packages/tray/package.json`:
 ```json
@@ -2341,7 +2341,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 }
 ```
 
-- [ ] **Step 2: Instalar Electron e electron-builder e fixar a versão do Electron**
+- [x] **Step 2: Instalar Electron e electron-builder e fixar a versão do Electron**
 
 Run: `npm install -D -w packages/tray electron electron-builder`
 Expected: sem erros.
@@ -2349,7 +2349,7 @@ Expected: sem erros.
 Run (PowerShell): `npm pkg set "build.electronVersion=$(node -p "require('electron/package.json').version")" -w packages/tray`
 Expected: `packages/tray/package.json` ganha `build.electronVersion` com a versão instalada (necessário porque o Electron fica no `node_modules` da raiz do workspace).
 
-- [ ] **Step 3: Escrever os testes (falhando)**
+- [x] **Step 3: Escrever os testes (falhando)**
 
 `packages/tray/test/icon.test.ts`:
 ```ts
@@ -2428,12 +2428,12 @@ describe('trayTooltip', () => {
 });
 ```
 
-- [ ] **Step 4: Rodar para ver falhar**
+- [x] **Step 4: Rodar para ver falhar**
 
 Run: `npx vitest run packages/tray`
 Expected: FAIL, "Failed to resolve import ../src/icon" e "../src/tooltip".
 
-- [ ] **Step 5: Implementar `icon.ts` e `tooltip.ts`**
+- [x] **Step 5: Implementar `icon.ts` e `tooltip.ts`**
 
 `packages/tray/src/icon.ts`:
 ```ts
@@ -2522,12 +2522,12 @@ export function trayTooltip(snaps: AgentSnapshot[]): string {
 }
 ```
 
-- [ ] **Step 6: Rodar os testes do tray**
+- [x] **Step 6: Rodar os testes do tray**
 
 Run: `npx vitest run packages/tray`
 Expected: PASS (6 testes).
 
-- [ ] **Step 7: Implementar preload, popup e main**
+- [x] **Step 7: Implementar preload, popup e main**
 
 `packages/tray/src/preload.ts`:
 ```ts
@@ -2732,7 +2732,7 @@ if (!app.requestSingleInstanceLock()) {
 }
 ```
 
-- [ ] **Step 8: Typecheck, testes e build**
+- [x] **Step 8: Typecheck, testes e build**
 
 Run: `npm run typecheck`
 Expected: sem erros.
@@ -2743,7 +2743,7 @@ Expected: PASS em core, vscode e tray.
 Run: `npm run build -w packages/tray`
 Expected: gera `packages/tray/dist/main.js`, `preload.js`, `popup.js` e `popup.html`.
 
-- [ ] **Step 9: Verificar à mão em modo dev**
+- [x] **Step 9: Verificar à mão em modo dev**
 
 Run: `npm start -w packages/tray`
 Expected, verificado à mão:
@@ -2752,12 +2752,12 @@ Expected, verificado à mão:
 - clique esquerdo abre o popup perto da bandeja com barras por agente/grupo/janela e resets; clicar fora fecha; clicar no ícone com o popup aberto fecha;
 - clique direito mostra "Atualizar agora", "Iniciar com o Windows" e "Sair"; "Sair" encerra o processo.
 
-- [ ] **Step 10: Gerar o instalador**
+- [x] **Step 10: Gerar o instalador**
 
 Run: `npm run dist -w packages/tray`
 Expected: gera `packages/tray/release/Agent Usage Setup 0.1.0.exe`. Instale, abra pelo menu Iniciar, marque "Iniciar com o Windows" e confirme que o app aparece em Configurações → Aplicativos → Inicialização.
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```bash
 git add package-lock.json packages/tray
