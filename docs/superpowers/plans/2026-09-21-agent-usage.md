@@ -2766,7 +2766,7 @@ git commit -m "feat(tray): app de bandeja com ícone dinâmico, popup e menu
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ```
 
-- [ ] **Step 12: Atualizar o hub no vault**
+- [x] **Step 12: Atualizar o hub no vault**
 
 Em `C:\SegundoCerebro\Projetos\Pessoais\VsCodeLLMAgentUsage\VsCodeLLMAgentUsage.md`:
 - no frontmatter, trocar `status: ideia` por `status: ativo` e pôr em `commit_base:` a saída de `git -C C:\Fontes\VsCodeLLMAgentUsage rev-parse --short HEAD`;
