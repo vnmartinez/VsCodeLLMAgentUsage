@@ -2,6 +2,7 @@ import path from 'node:path';
 import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, Tray } from 'electron';
 import { band, buildViewModel, createDefaultCollector, worstPct } from '@agent-usage/core';
 import { ICON_SIZE, renderIconBitmap } from './icon';
+import { createSafeRender } from './render';
 import { trayTooltip } from './tooltip';
 
 const POPUP_WIDTH = 340;
@@ -43,12 +44,14 @@ if (!app.requestSingleInstanceLock()) {
       hiddenAt = Date.now();
     });
 
-    const render = () => {
+    let renderTimer: ReturnType<typeof setInterval> | undefined;
+
+    const render = createSafeRender(() => {
       const snaps = collector.current();
       tray.setImage(iconFor(worstPct(snaps)));
       tray.setToolTip(trayTooltip(snaps));
       if (popup.isVisible()) popup.webContents.send('model', model());
-    };
+    });
 
     const togglePopup = () => {
       if (popup.isVisible()) {
@@ -83,6 +86,7 @@ if (!app.requestSingleInstanceLock()) {
         {
           label: 'Sair',
           click: () => {
+            if (renderTimer) clearInterval(renderTimer);
             collector.stop();
             app.quit();
           },
@@ -91,8 +95,12 @@ if (!app.requestSingleInstanceLock()) {
     );
     tray.on('click', togglePopup);
 
+    app.on('before-quit', () => {
+      if (renderTimer) clearInterval(renderTimer);
+    });
+
     collector.subscribe(render);
-    setInterval(render, 30_000); // mantém as contagens regressivas atualizadas
+    renderTimer = setInterval(render, 30_000); // mantém as contagens regressivas atualizadas
     render();
     void collector.start();
   });
