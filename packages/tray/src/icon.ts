@@ -26,7 +26,8 @@ const COLORS: Record<Band | 'none', [number, number, number]> = {
 };
 
 export function iconLabel(pct: number | null): string {
-  return pct === null ? '--' : String(Math.min(100, Math.max(0, Math.round(pct))));
+  if (pct === null || !Number.isFinite(pct)) return '--';
+  return String(Math.min(100, Math.max(0, Math.round(pct))));
 }
 
 /** Bitmap BGRA (formato do nativeImage.createFromBitmap no Windows). */

@@ -31,6 +31,9 @@ export function serialize(snaps: AgentSnapshot[]): string {
   );
 }
 
+const VALID_STATUSES: readonly string[] = ['live', 'stale', 'unavailable'];
+const VALID_WINDOWS: readonly string[] = ['5h', 'weekly'];
+
 export function deserialize(text: string): AgentSnapshot[] {
   let raw: unknown;
   try {
@@ -41,22 +44,55 @@ export function deserialize(text: string): AgentSnapshot[] {
   if (!Array.isArray(raw)) return [];
   const snaps: AgentSnapshot[] = [];
   for (const s of raw as any[]) {
-    if (!AGENTS.includes(s?.agent) || !Array.isArray(s?.limits)) continue;
+    if (!s || typeof s !== 'object') continue;
+    if (!AGENTS.includes(s.agent)) continue;
+    if (!VALID_STATUSES.includes(s.status)) continue;
+    if (!Array.isArray(s.limits)) continue;
+
+    const fetchedAt = new Date(s.fetchedAt);
+    if (Number.isNaN(fetchedAt.getTime())) continue;
+
+    let limitsValid = true;
+    const limits: AgentSnapshot['limits'] = [];
+    for (const l of s.limits) {
+      if (!l || typeof l !== 'object') {
+        limitsValid = false;
+        break;
+      }
+      if (!VALID_WINDOWS.includes(l.window)) {
+        limitsValid = false;
+        break;
+      }
+      const rawPct = Number(l.usedPct);
+      if (!Number.isFinite(rawPct)) {
+        limitsValid = false;
+        break;
+      }
+      let resetsAt: Date | null = null;
+      if (l.resetsAt !== null && l.resetsAt !== undefined) {
+        resetsAt = new Date(l.resetsAt);
+        if (Number.isNaN(resetsAt.getTime())) {
+          limitsValid = false;
+          break;
+        }
+      }
+      const limit = {
+        agent: s.agent,
+        window: l.window,
+        usedPct: Math.min(100, Math.max(0, rawPct)),
+        resetsAt,
+      };
+      limits.push(l.group ? { ...limit, group: l.group } : limit);
+    }
+    if (!limitsValid) continue;
+
     const snap: AgentSnapshot = {
       agent: s.agent,
       status: s.status,
-      fetchedAt: new Date(s.fetchedAt),
-      limits: s.limits.map((l: any) => {
-        const limit = {
-          agent: s.agent,
-          window: l.window,
-          usedPct: Number(l.usedPct),
-          resetsAt: l.resetsAt ? new Date(l.resetsAt) : null,
-        };
-        return l.group ? { ...limit, group: l.group } : limit;
-      }),
+      fetchedAt,
+      limits,
     };
-    if (s.note) snap.note = s.note;
+    if (typeof s.note === 'string') snap.note = s.note;
     snaps.push(snap);
   }
   return snaps;

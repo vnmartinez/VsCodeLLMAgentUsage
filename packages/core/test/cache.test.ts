@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { fileCache } from '../src/cache';
+import { deserialize, fileCache } from '../src/cache';
 import type { AgentSnapshot } from '../src/types';
 
 const SNAPS: AgentSnapshot[] = [
@@ -50,5 +50,28 @@ describe('fileCache', () => {
     const withExtra = [{ ...SNAPS[0], email: 'alguem@exemplo.com' } as AgentSnapshot];
     await fileCache(file).save(withExtra);
     expect(await readFile(file, 'utf8')).not.toContain('email');
+  });
+});
+
+describe('deserialize', () => {
+  it('descarta snapshots com campos ausentes ou inválidos', () => {
+    // status inválido
+    expect(deserialize(JSON.stringify([{ agent: 'codex', status: 'banana', fetchedAt: '2026-09-21T18:00:00Z', limits: [] }]))).toEqual([]);
+    // usedPct inválido (abc)
+    expect(deserialize(JSON.stringify([{ agent: 'codex', status: 'live', fetchedAt: '2026-09-21T18:00:00Z', limits: [{ window: '5h', usedPct: 'abc' }] }]))).toEqual([]);
+    // window inválida
+    expect(deserialize(JSON.stringify([{ agent: 'codex', status: 'live', fetchedAt: '2026-09-21T18:00:00Z', limits: [{ window: 'diario', usedPct: 10 }] }]))).toEqual([]);
+    // resetsAt inválido
+    expect(deserialize(JSON.stringify([{ agent: 'codex', status: 'live', fetchedAt: '2026-09-21T18:00:00Z', limits: [{ window: '5h', usedPct: 10, resetsAt: 'ontem' }] }]))).toEqual([]);
+    // fetchedAt ausente ou inválido
+    expect(deserialize(JSON.stringify([{ agent: 'codex', status: 'live', fetchedAt: 'invalido', limits: [] }]))).toEqual([]);
+    // limits com null
+    expect(deserialize(JSON.stringify([{ agent: 'codex', status: 'live', fetchedAt: '2026-09-21T18:00:00Z', limits: [null] }]))).toEqual([]);
+  });
+
+  it('aplica clamp de 0 a 100 em usedPct', () => {
+    const raw = [{ agent: 'codex', status: 'live', fetchedAt: '2026-09-21T18:00:00Z', limits: [{ window: '5h', usedPct: 9999 }] }];
+    const snaps = deserialize(JSON.stringify(raw));
+    expect(snaps[0].limits[0].usedPct).toBe(100);
   });
 });

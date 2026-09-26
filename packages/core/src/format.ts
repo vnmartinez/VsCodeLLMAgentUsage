@@ -49,7 +49,8 @@ export function worstBand(snaps: AgentSnapshot[]): Band | null {
 const SHORT: Record<AgentId, string> = { claude: 'CC', codex: 'CX', antigravity: 'AG' };
 
 function pctText(value: number | null): string {
-  return value === null ? '--' : String(Math.round(value));
+  if (value === null || !Number.isFinite(value)) return '--';
+  return String(Math.round(value));
 }
 
 export function statusBarText(snaps: AgentSnapshot[]): string {

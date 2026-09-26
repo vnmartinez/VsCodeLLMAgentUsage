@@ -14,6 +14,12 @@ describe('iconLabel', () => {
     expect(iconLabel(130)).toBe('100');
     expect(iconLabel(null)).toBe('--');
   });
+
+  it('retorna -- e renderiza sem erro para NaN ou valores não finitos', () => {
+    expect(iconLabel(NaN)).toBe('--');
+    expect(iconLabel(Infinity)).toBe('--');
+    expect(() => renderIconBitmap(NaN, null)).not.toThrow();
+  });
 });
 
 describe('renderIconBitmap', () => {
