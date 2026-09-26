@@ -82,7 +82,7 @@ packages/tray/
   - `errors.ts`: `SourceFormatError(detail)`, `StaleError(note)`, `UnavailableError(note)`, `HttpStatusError(status)` com `.status: number`
   - `format.ts`: `Band`, `band(pct): Band`, `formatDuration(ms): string`, `formatCountdown(resetsAt: Date | null, now: Date): string`, `statusText(snap, now): string`, `windowMax(snap | undefined, window): number | null`, `worstPct(snaps): number | null`, `worstBand(snaps): Band | null`, `statusBarText(snaps): string`, `LimitView`, `AgentView`, `buildViewModel(snaps, now): AgentView[]`
 
-- [ ] **Step 1: Criar a branch e os arquivos de raiz**
+- [x] **Step 1: Criar a branch e os arquivos de raiz**
 
 ```bash
 git checkout -b feat/agent-usage
@@ -154,12 +154,12 @@ release/
 }
 ```
 
-- [ ] **Step 2: Instalar as dependências de desenvolvimento**
+- [x] **Step 2: Instalar as dependências de desenvolvimento**
 
 Run: `npm install -D typescript vitest @types/node esbuild`
 Expected: cria `node_modules/` e `package-lock.json`, sem erros.
 
-- [ ] **Step 3: Escrever `types.ts` e `errors.ts`**
+- [x] **Step 3: Escrever `types.ts` e `errors.ts`**
 
 `packages/core/src/types.ts`:
 ```ts
@@ -239,7 +239,7 @@ export class HttpStatusError extends Error {
 }
 ```
 
-- [ ] **Step 4: Escrever o teste de formatação (falhando)**
+- [x] **Step 4: Escrever o teste de formatação (falhando)**
 
 `packages/core/test/format.test.ts`:
 ```ts
@@ -361,12 +361,12 @@ describe('buildViewModel', () => {
 });
 ```
 
-- [ ] **Step 5: Rodar o teste para ver falhar**
+- [x] **Step 5: Rodar o teste para ver falhar**
 
 Run: `npx vitest run packages/core/test/format.test.ts`
 Expected: FAIL, "Failed to resolve import ../src/format".
 
-- [ ] **Step 6: Implementar `format.ts`**
+- [x] **Step 6: Implementar `format.ts`**
 
 `packages/core/src/format.ts`:
 ```ts
@@ -475,7 +475,7 @@ export function buildViewModel(snaps: AgentSnapshot[], now: Date): AgentView[] {
 }
 ```
 
-- [ ] **Step 7: Rodar testes e typecheck**
+- [x] **Step 7: Rodar testes e typecheck**
 
 Run: `npx vitest run packages/core/test/format.test.ts`
 Expected: PASS (10 testes).
@@ -483,7 +483,7 @@ Expected: PASS (10 testes).
 Run: `npm run typecheck`
 Expected: sem erros.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add package.json package-lock.json tsconfig.json vitest.config.ts .gitignore packages/core
@@ -507,7 +507,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   - `parse.ts`: `CodexReading { timestamp: Date; windows: RawWindow[] }`, `CODEX_LIVE_MS = 600_000`, `parseCodexLine(line: string): CodexReading | null`, `findLatestReading(text: string): CodexReading | null`, `codexSnapshot(reading: CodexReading, now: Date): AgentSnapshot`
   - `provider.ts`: `CodexDeps { sessionsDir: string; now: () => Date }`, `class CodexProvider implements Provider` (`id = 'codex'`)
 
-- [ ] **Step 1: Criar a fixture**
+- [x] **Step 1: Criar a fixture**
 
 `packages/core/test/fixtures/codex-rollout.jsonl` (3 linhas; a do meio foi copiada de um rollout real e reduzida):
 ```
@@ -517,7 +517,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ```
 Para referência: `1790010864` é `2026-09-21T17:14:24Z` e `1790527570` é `2026-09-27T16:46:10Z`.
 
-- [ ] **Step 2: Escrever o teste (falhando)**
+- [x] **Step 2: Escrever o teste (falhando)**
 
 `packages/core/test/codex.test.ts`:
 ```ts
@@ -641,12 +641,12 @@ describe('CodexProvider', () => {
 });
 ```
 
-- [ ] **Step 3: Rodar o teste para ver falhar**
+- [x] **Step 3: Rodar o teste para ver falhar**
 
 Run: `npx vitest run packages/core/test/codex.test.ts`
 Expected: FAIL, "Failed to resolve import ../src/providers/codex/parse".
 
-- [ ] **Step 4: Implementar `parse.ts`**
+- [x] **Step 4: Implementar `parse.ts`**
 
 `packages/core/src/providers/codex/parse.ts`:
 ```ts
@@ -727,7 +727,7 @@ export function codexSnapshot(reading: CodexReading, now: Date): AgentSnapshot {
 }
 ```
 
-- [ ] **Step 5: Implementar `provider.ts`**
+- [x] **Step 5: Implementar `provider.ts`**
 
 `packages/core/src/providers/codex/provider.ts`:
 ```ts
@@ -802,7 +802,7 @@ export class CodexProvider implements Provider {
 }
 ```
 
-- [ ] **Step 6: Rodar testes e typecheck**
+- [x] **Step 6: Rodar testes e typecheck**
 
 Run: `npx vitest run packages/core/test/codex.test.ts`
 Expected: PASS (10 testes).
@@ -810,7 +810,7 @@ Expected: PASS (10 testes).
 Run: `npm run typecheck`
 Expected: sem erros.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add packages/core
@@ -834,7 +834,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   - `parse.ts`: `ClaudeCredentials { accessToken: string; expiresAt: Date }`, `parseCredentials(text: string): ClaudeCredentials`, `parseClaudeUsage(json: unknown, fetchedAt: Date): AgentSnapshot`
   - `provider.ts`: `CLAUDE_USAGE_URL`, `ClaudeDeps { credentialsPath: string; readFile: (path: string) => Promise<string>; fetch: typeof fetch; now: () => Date }`, `class ClaudeProvider implements Provider` (`id = 'claude'`)
 
-- [ ] **Step 1: Criar a fixture**
+- [x] **Step 1: Criar a fixture**
 
 `packages/core/test/fixtures/claude-usage.json` (resposta real reduzida):
 ```json
@@ -848,7 +848,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 }
 ```
 
-- [ ] **Step 2: Escrever o teste (falhando)**
+- [x] **Step 2: Escrever o teste (falhando)**
 
 `packages/core/test/claude.test.ts`:
 ```ts
@@ -949,12 +949,12 @@ describe('ClaudeProvider', () => {
 });
 ```
 
-- [ ] **Step 3: Rodar o teste para ver falhar**
+- [x] **Step 3: Rodar o teste para ver falhar**
 
 Run: `npx vitest run packages/core/test/claude.test.ts`
 Expected: FAIL, "Failed to resolve import ../src/providers/claude/provider".
 
-- [ ] **Step 4: Implementar `parse.ts`**
+- [x] **Step 4: Implementar `parse.ts`**
 
 `packages/core/src/providers/claude/parse.ts`:
 ```ts
@@ -1002,7 +1002,7 @@ export function parseClaudeUsage(json: unknown, fetchedAt: Date): AgentSnapshot 
 }
 ```
 
-- [ ] **Step 5: Implementar `provider.ts`**
+- [x] **Step 5: Implementar `provider.ts`**
 
 `packages/core/src/providers/claude/provider.ts`:
 ```ts
@@ -1053,7 +1053,7 @@ export class ClaudeProvider implements Provider {
 }
 ```
 
-- [ ] **Step 6: Rodar testes e typecheck**
+- [x] **Step 6: Rodar testes e typecheck**
 
 Run: `npx vitest run packages/core/test/claude.test.ts`
 Expected: PASS (8 testes).
@@ -1061,7 +1061,7 @@ Expected: PASS (8 testes).
 Run: `npm run typecheck`
 Expected: sem erros.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add packages/core
@@ -1086,7 +1086,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   - `discover.ts`: `RunPowerShell = (script: string) => Promise<string>`, `DISCOVERY_SCRIPT`, `runPowerShell: RunPowerShell`, `discoverLanguageServers(run?: RunPowerShell): Promise<LanguageServer[]>`
   - `provider.ts`: `QUOTA_PATH`, `AntigravityDeps { discover: () => Promise<LanguageServer[]>; fetch: typeof fetch; now: () => Date }`, `class AntigravityProvider implements Provider` (`id = 'antigravity'`)
 
-- [ ] **Step 1: Criar a fixture**
+- [x] **Step 1: Criar a fixture**
 
 `packages/core/test/fixtures/antigravity-quota.json` (resposta real de `RetrieveUserQuotaSummary`, sem dados pessoais):
 ```json
@@ -1115,7 +1115,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 }
 ```
 
-- [ ] **Step 2: Escrever o teste (falhando)**
+- [x] **Step 2: Escrever o teste (falhando)**
 
 `packages/core/test/antigravity.test.ts`:
 ```ts
@@ -1249,12 +1249,12 @@ describe('AntigravityProvider', () => {
 });
 ```
 
-- [ ] **Step 3: Rodar o teste para ver falhar**
+- [x] **Step 3: Rodar o teste para ver falhar**
 
 Run: `npx vitest run packages/core/test/antigravity.test.ts`
 Expected: FAIL, "Failed to resolve import ../src/providers/antigravity/parse".
 
-- [ ] **Step 4: Implementar `parse.ts`**
+- [x] **Step 4: Implementar `parse.ts`**
 
 `packages/core/src/providers/antigravity/parse.ts`:
 ```ts
@@ -1325,7 +1325,7 @@ export function parseQuotaSummary(json: unknown, fetchedAt: Date): AgentSnapshot
 }
 ```
 
-- [ ] **Step 5: Implementar `discover.ts`**
+- [x] **Step 5: Implementar `discover.ts`**
 
 `packages/core/src/providers/antigravity/discover.ts`:
 ```ts
@@ -1367,7 +1367,7 @@ export async function discoverLanguageServers(run: RunPowerShell = runPowerShell
 }
 ```
 
-- [ ] **Step 6: Implementar `provider.ts`**
+- [x] **Step 6: Implementar `provider.ts`**
 
 `packages/core/src/providers/antigravity/provider.ts`:
 ```ts
@@ -1437,7 +1437,7 @@ export class AntigravityProvider implements Provider {
 }
 ```
 
-- [ ] **Step 7: Rodar testes e typecheck**
+- [x] **Step 7: Rodar testes e typecheck**
 
 Run: `npx vitest run packages/core/test/antigravity.test.ts`
 Expected: PASS (11 testes).
@@ -1445,7 +1445,7 @@ Expected: PASS (11 testes).
 Run: `npm run typecheck`
 Expected: sem erros.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add packages/core
@@ -1468,7 +1468,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   - `cache.ts`: `SnapshotCache { load(): Promise<AgentSnapshot[]>; save(snaps: AgentSnapshot[]): Promise<void> }`, `defaultCachePath(): string`, `serialize(snaps): string`, `deserialize(text): AgentSnapshot[]`, `fileCache(file?: string): SnapshotCache`
   - `collector.ts`: `DEFAULT_INTERVALS_MS`, `CollectorOptions`, `class Collector` com `start(): Promise<void>`, `stop(): void`, `subscribe(listener: (snaps: AgentSnapshot[]) => void): () => void`, `current(): AgentSnapshot[]`, `refreshNow(): Promise<void>`, `intervalOf(id: AgentId): number`
 
-- [ ] **Step 1: Escrever o teste do cache (falhando)**
+- [x] **Step 1: Escrever o teste do cache (falhando)**
 
 `packages/core/test/cache.test.ts`:
 ```ts
@@ -1528,12 +1528,12 @@ describe('fileCache', () => {
 });
 ```
 
-- [ ] **Step 2: Rodar para ver falhar**
+- [x] **Step 2: Rodar para ver falhar**
 
 Run: `npx vitest run packages/core/test/cache.test.ts`
 Expected: FAIL, "Failed to resolve import ../src/cache".
 
-- [ ] **Step 3: Implementar `cache.ts`**
+- [x] **Step 3: Implementar `cache.ts`**
 
 `packages/core/src/cache.ts`:
 ```ts
@@ -1620,12 +1620,12 @@ export function fileCache(file: string = defaultCachePath()): SnapshotCache {
 }
 ```
 
-- [ ] **Step 4: Rodar o teste do cache**
+- [x] **Step 4: Rodar o teste do cache**
 
 Run: `npx vitest run packages/core/test/cache.test.ts`
 Expected: PASS (3 testes).
 
-- [ ] **Step 5: Escrever o teste do coletor (falhando)**
+- [x] **Step 5: Escrever o teste do coletor (falhando)**
 
 `packages/core/test/collector.test.ts`:
 ```ts
@@ -1806,12 +1806,12 @@ describe('Collector', () => {
 });
 ```
 
-- [ ] **Step 6: Rodar para ver falhar**
+- [x] **Step 6: Rodar para ver falhar**
 
 Run: `npx vitest run packages/core/test/collector.test.ts`
 Expected: FAIL, "Failed to resolve import ../src/collector".
 
-- [ ] **Step 7: Implementar `collector.ts`**
+- [x] **Step 7: Implementar `collector.ts`**
 
 `packages/core/src/collector.ts`:
 ```ts
@@ -1950,7 +1950,7 @@ export class Collector {
 }
 ```
 
-- [ ] **Step 8: Rodar a suíte inteira e o typecheck**
+- [x] **Step 8: Rodar a suíte inteira e o typecheck**
 
 Run: `npm test`
 Expected: PASS em todos os arquivos do core (format, codex, claude, antigravity, cache, collector).
@@ -1958,7 +1958,7 @@ Expected: PASS em todos os arquivos do core (format, codex, claude, antigravity,
 Run: `npm run typecheck`
 Expected: sem erros.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add packages/core
@@ -1980,7 +1980,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   - `defaults.ts`: `createDefaultCollector(options?: { intervalsMs?: Partial<Record<AgentId, number>> }): Collector`
   - `index.ts`: reexporta `types`, `errors`, `format`, `cache`, `collector`, `defaults`. É a única superfície usada pelos frontends, via `@agent-usage/core`.
 
-- [ ] **Step 1: Implementar `defaults.ts`**
+- [x] **Step 1: Implementar `defaults.ts`**
 
 `packages/core/src/defaults.ts`:
 ```ts
@@ -2016,7 +2016,7 @@ export function createDefaultCollector(options: { intervalsMs?: Partial<Record<A
 }
 ```
 
-- [ ] **Step 2: Implementar `index.ts`**
+- [x] **Step 2: Implementar `index.ts`**
 
 `packages/core/src/index.ts`:
 ```ts
@@ -2028,7 +2028,7 @@ export * from './collector';
 export * from './defaults';
 ```
 
-- [ ] **Step 3: Escrever o smoke**
+- [x] **Step 3: Escrever o smoke**
 
 `packages/core/scripts/smoke.ts`:
 ```ts
@@ -2041,7 +2041,7 @@ collector.stop();
 console.log(JSON.stringify(buildViewModel(collector.current(), new Date()), null, 2));
 ```
 
-- [ ] **Step 4: Typecheck e testes**
+- [x] **Step 4: Typecheck e testes**
 
 Run: `npm run typecheck`
 Expected: sem erros.
@@ -2049,7 +2049,7 @@ Expected: sem erros.
 Run: `npm test`
 Expected: PASS.
 
-- [ ] **Step 5: Rodar o smoke contra a máquina real**
+- [x] **Step 5: Rodar o smoke contra a máquina real**
 
 Run (PowerShell):
 ```powershell
@@ -2057,7 +2057,7 @@ npx esbuild packages/core/scripts/smoke.ts --bundle --platform=node --format=esm
 ```
 Expected: JSON com três views. Com o Claude Code logado, `claude` aparece com `statusText` "ao vivo" e os rótulos `5h`/`Semanal`. `codex` aparece "ao vivo" ou "lido há …". Com o Antigravity aberto, `antigravity` traz quatro limites (`Gemini · 5h`, `Gemini · Semanal`, `Claude/GPT · 5h`, `Claude/GPT · Semanal`). A saída não pode conter nenhum token. Se algum agente vier `indisponível`, leia o `note` antes de seguir. Não siga em frente com um provider quebrado.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add packages/core
