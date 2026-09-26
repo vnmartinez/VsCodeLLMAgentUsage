@@ -2,10 +2,28 @@ import { mkdir, mkdtemp, readFile, rm, utimes, writeFile } from 'node:fs/promise
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SourceFormatError, UnavailableError } from '../src/errors';
 import { codexSnapshot, findLatestReading, parseCodexLine } from '../src/providers/codex/parse';
 import { CodexProvider } from '../src/providers/codex/provider';
+
+let failStatOnce = false;
+
+vi.mock('node:fs/promises', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs/promises')>();
+  return {
+    ...actual,
+    stat: async (file: any, opts: any) => {
+      if (failStatOnce) {
+        failStatOnce = false;
+        const err = new Error('ENOENT: no such file or directory');
+        (err as any).code = 'ENOENT';
+        throw err;
+      }
+      return actual.stat(file, opts);
+    },
+  };
+});
 
 const FIXTURE = fileURLToPath(new URL('./fixtures/codex-rollout.jsonl', import.meta.url));
 const LIVE_NOW = new Date('2026-09-21T15:35:00Z');
@@ -122,5 +140,23 @@ describe('CodexProvider', () => {
     const controller = new AbortController();
     controller.abort();
     await expect(provider.fetch(controller.signal)).rejects.toThrow();
+  });
+
+  it('ignora arquivo que sumiu entre readdir e stat sem lançar ENOENT cru', async () => {
+    await writeRollout(LIVE_NOW, 'rollout-a.jsonl', await fixtureText(), LIVE_NOW);
+    const provider = new CodexProvider({ sessionsDir: root, now: () => LIVE_NOW });
+    failStatOnce = true;
+    // Com apenas 1 arquivo que falha no stat, o resultado deve ser UnavailableError e não ENOENT
+    await expect(provider.fetch()).rejects.toBeInstanceOf(UnavailableError);
+  });
+
+  it('encontra rate_limits no fallback de leitura quando não está no tail inicial', async () => {
+    const text = await fixtureText();
+    // Preenche com 300KB de linhas vazias/comentários e coloca a leitura no começo
+    const padding = '\n'.repeat(300 * 1024);
+    await writeRollout(LIVE_NOW, 'rollout-fallback.jsonl', text + padding, LIVE_NOW);
+    const provider = new CodexProvider({ sessionsDir: root, now: () => LIVE_NOW });
+    const snap = await provider.fetch();
+    expect(snap.limits[0].usedPct).toBe(58);
   });
 });

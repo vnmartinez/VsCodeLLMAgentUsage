@@ -12,14 +12,16 @@ export interface CodexDeps {
 const LOOKBACK_DAYS = 7;
 const MAX_FILES = 10;
 const TAIL_BYTES = 256 * 1024;
+const MAX_READ_BYTES = 32 * 1024 * 1024;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
 async function readTail(file: string, bytes: number): Promise<string> {
+  const boundedBytes = Math.min(bytes, MAX_READ_BYTES);
   const handle = await open(file, 'r');
   try {
     const { size } = await handle.stat();
-    const start = Math.max(0, size - bytes);
+    const start = Math.max(0, size - boundedBytes);
     const buffer = Buffer.alloc(size - start);
     await handle.read(buffer, 0, buffer.length, start);
     return buffer.toString('utf8');
@@ -45,7 +47,11 @@ async function recentRollouts(root: string, now: Date, signal?: AbortSignal): Pr
       signal?.throwIfAborted();
       if (!name.startsWith('rollout-') || !name.endsWith('.jsonl')) continue;
       const file = path.join(dir, name);
-      found.push({ file, mtime: (await stat(file)).mtimeMs });
+      try {
+        found.push({ file, mtime: (await stat(file)).mtimeMs });
+      } catch {
+        continue;
+      }
     }
   }
   return found.sort((a, b) => b.mtime - a.mtime).map((f) => f.file);
@@ -68,7 +74,7 @@ export class CodexProvider implements Provider {
       signal?.throwIfAborted();
       const reading =
         findLatestReading(tail) ??
-        findLatestReading(await readTail(file, Number.MAX_SAFE_INTEGER));
+        findLatestReading(await readTail(file, MAX_READ_BYTES));
       if (reading) return codexSnapshot(reading, now);
     }
     throw new UnavailableError('sem dados de limite nas sessões recentes do Codex');
