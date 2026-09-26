@@ -17,7 +17,11 @@ export function parseCredentials(text: string): ClaudeCredentials {
   if (typeof oauth?.accessToken !== 'string' || typeof oauth?.expiresAt !== 'number') {
     throw new SourceFormatError('credenciais do claude');
   }
-  return { accessToken: oauth.accessToken, expiresAt: new Date(oauth.expiresAt) };
+  const expiresAt = new Date(oauth.expiresAt);
+  if (Number.isNaN(expiresAt.getTime())) {
+    throw new SourceFormatError('credenciais do claude');
+  }
+  return { accessToken: oauth.accessToken, expiresAt };
 }
 
 function parseWindow(raw: any, window: LimitWindow): Limit {

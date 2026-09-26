@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
 import { HttpStatusError, SourceFormatError, StaleError, UnavailableError } from '../src/errors';
+import { parseCredentials } from '../src/providers/claude/parse';
 import { CLAUDE_USAGE_URL, ClaudeProvider } from '../src/providers/claude/provider';
 
 const FIXTURE = JSON.parse(
@@ -77,6 +78,11 @@ describe('ClaudeProvider', () => {
 
   it('rejeita resposta com formato inesperado', async () => {
     await expect(setup({ body: { five_hour: null } }).provider.fetch()).rejects.toBeInstanceOf(SourceFormatError);
+  });
+
+  it('rejeita credenciais com expiresAt que produz data inválida', () => {
+    const json = JSON.stringify({ claudeAiOauth: { accessToken: TOKEN, expiresAt: 1e25 } });
+    expect(() => parseCredentials(json)).toThrow(SourceFormatError);
   });
 
   it('nunca expõe o token em mensagens de erro', async () => {

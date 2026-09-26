@@ -55,7 +55,7 @@ export function parseQuotaSummary(json: unknown, fetchedAt: Date): AgentSnapshot
         agent: 'antigravity',
         group: name,
         window: bucket.window,
-        usedPct: (1 - remaining) * 100,
+        usedPct: Math.min(100, Math.max(0, (1 - remaining) * 100)),
         resetsAt: new Date(bucket.resetTime),
       });
     }

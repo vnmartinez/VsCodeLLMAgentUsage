@@ -34,6 +34,25 @@ describe('parseQuotaSummary', () => {
     expect(parseQuotaSummary(body, NOW).limits[0].usedPct).toBe(100);
   });
 
+  it('limita usedPct entre 0 e 100 mesmo com remainingFraction fora da faixa', () => {
+    const body = {
+      response: {
+        groups: [
+          {
+            displayName: 'Gemini Models',
+            buckets: [
+              { window: '5h', remainingFraction: 1.5, resetTime: '2026-09-21T22:00:00Z' },
+              { window: 'weekly', remainingFraction: -0.5, resetTime: '2026-09-21T22:00:00Z' },
+            ],
+          },
+        ],
+      },
+    };
+    const snap = parseQuotaSummary(body, NOW);
+    expect(snap.limits[0].usedPct).toBe(0);
+    expect(snap.limits[1].usedPct).toBe(100);
+  });
+
   it('rejeita formatos inesperados', () => {
     expect(() => parseQuotaSummary({ response: {} }, NOW)).toThrow(SourceFormatError);
     const noWindows = { response: { groups: [{ displayName: 'X', buckets: [{ window: 'daily' }] }] } };
