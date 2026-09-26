@@ -2079,7 +2079,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 - Consumes: de `@agent-usage/core`: `AgentView`, `AgentId`, `buildViewModel`, `createDefaultCollector`, `statusBarText`, `worstBand`.
 - Produces: `tooltipMarkdown(views: AgentView[]): string`; comando `agentUsage.refresh`; configurações `agentUsage.claudeIntervalSeconds` e `agentUsage.localIntervalSeconds`.
 
-- [ ] **Step 1: Criar o manifest e arquivos de pacote**
+- [x] **Step 1: Criar o manifest e arquivos de pacote**
 
 `packages/vscode/package.json`:
 ```json
@@ -2138,12 +2138,12 @@ Mostra na status bar o % usado das janelas de 5h e semanal de Claude Code, Codex
 Clique no item para atualizar. Passe o mouse para ver resets e detalhes.
 ```
 
-- [ ] **Step 2: Instalar as dependências da extensão**
+- [x] **Step 2: Instalar as dependências da extensão**
 
 Run: `npm install -D -w packages/vscode @types/vscode@~1.100.0 @vscode/vsce`
 Expected: sem erros; `node_modules/@agent-usage/core` passa a ser um link para `packages/core`.
 
-- [ ] **Step 3: Escrever o teste do tooltip (falhando)**
+- [x] **Step 3: Escrever o teste do tooltip (falhando)**
 
 `packages/vscode/test/tooltip.test.ts`:
 ```ts
@@ -2185,12 +2185,12 @@ describe('tooltipMarkdown', () => {
 });
 ```
 
-- [ ] **Step 4: Rodar para ver falhar**
+- [x] **Step 4: Rodar para ver falhar**
 
 Run: `npx vitest run packages/vscode/test/tooltip.test.ts`
 Expected: FAIL, "Failed to resolve import ../src/tooltip".
 
-- [ ] **Step 5: Implementar `tooltip.ts` e `extension.ts`**
+- [x] **Step 5: Implementar `tooltip.ts` e `extension.ts`**
 
 `packages/vscode/src/tooltip.ts`:
 ```ts
@@ -2266,7 +2266,7 @@ export function activate(context: vscode.ExtensionContext): void {
 export function deactivate(): void {}
 ```
 
-- [ ] **Step 6: Rodar testes, typecheck e build**
+- [x] **Step 6: Rodar testes, typecheck e build**
 
 Run: `npx vitest run packages/vscode/test/tooltip.test.ts`
 Expected: PASS.
@@ -2277,7 +2277,7 @@ Expected: sem erros.
 Run: `npm run build -w packages/vscode`
 Expected: gera `packages/vscode/dist/extension.js`.
 
-- [ ] **Step 7: Empacotar, instalar e verificar à mão**
+- [x] **Step 7: Empacotar, instalar e verificar à mão**
 
 Run: `npm run package -w packages/vscode`
 Expected: gera `packages/vscode/agent-usage-0.1.0.vsix`.
@@ -2287,7 +2287,7 @@ Expected: "Extension 'agent-usage-0.1.0.vsix' was successfully installed."
 
 Verificação manual: recarregar a janela (`Developer: Reload Window`). Na status bar deve aparecer `$(pulse) CC x/y  CX x/y  AG x/y` com números coerentes com o smoke da Task 6. O tooltip mostra os três agentes com resets. Clicar no item atualiza. Com alguma janela ≥80%, o fundo fica amarelo.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add package-lock.json packages/vscode
