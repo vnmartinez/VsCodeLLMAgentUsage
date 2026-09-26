@@ -29,9 +29,10 @@ async function readTail(file: string, bytes: number): Promise<string> {
 }
 
 /** Rollouts dos últimos dias (pastas AAAA/MM/DD em data local), mais recentes primeiro. */
-async function recentRollouts(root: string, now: Date): Promise<string[]> {
+async function recentRollouts(root: string, now: Date, signal?: AbortSignal): Promise<string[]> {
   const found: { file: string; mtime: number }[] = [];
   for (let d = 0; d < LOOKBACK_DAYS; d++) {
+    signal?.throwIfAborted();
     const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() - d);
     const dir = path.join(root, String(day.getFullYear()), pad(day.getMonth() + 1), pad(day.getDate()));
     let names: string[];
@@ -41,6 +42,7 @@ async function recentRollouts(root: string, now: Date): Promise<string[]> {
       continue;
     }
     for (const name of names) {
+      signal?.throwIfAborted();
       if (!name.startsWith('rollout-') || !name.endsWith('.jsonl')) continue;
       const file = path.join(dir, name);
       found.push({ file, mtime: (await stat(file)).mtimeMs });
@@ -54,13 +56,18 @@ export class CodexProvider implements Provider {
 
   constructor(private readonly deps: CodexDeps) {}
 
-  async fetch(): Promise<AgentSnapshot> {
+  async fetch(signal?: AbortSignal): Promise<AgentSnapshot> {
+    signal?.throwIfAborted();
     const now = this.deps.now();
-    const files = await recentRollouts(this.deps.sessionsDir, now);
+    const files = await recentRollouts(this.deps.sessionsDir, now, signal);
+    signal?.throwIfAborted();
     if (files.length === 0) throw new UnavailableError('nenhuma sessão do Codex nos últimos 7 dias');
     for (const file of files.slice(0, MAX_FILES)) {
+      signal?.throwIfAborted();
+      const tail = await readTail(file, TAIL_BYTES);
+      signal?.throwIfAborted();
       const reading =
-        findLatestReading(await readTail(file, TAIL_BYTES)) ??
+        findLatestReading(tail) ??
         findLatestReading(await readTail(file, Number.MAX_SAFE_INTEGER));
       if (reading) return codexSnapshot(reading, now);
     }

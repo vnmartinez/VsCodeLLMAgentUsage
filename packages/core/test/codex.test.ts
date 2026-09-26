@@ -115,4 +115,12 @@ describe('CodexProvider', () => {
     const provider = new CodexProvider({ sessionsDir: path.join(root, 'nao-existe'), now: () => LIVE_NOW });
     await expect(provider.fetch()).rejects.toBeInstanceOf(UnavailableError);
   });
+
+  it('respeita AbortSignal já abortado com a classe real CodexProvider', async () => {
+    await writeRollout(LIVE_NOW, 'rollout-a.jsonl', await fixtureText(), LIVE_NOW);
+    const provider = new CodexProvider({ sessionsDir: root, now: () => LIVE_NOW });
+    const controller = new AbortController();
+    controller.abort();
+    await expect(provider.fetch(controller.signal)).rejects.toThrow();
+  });
 });
