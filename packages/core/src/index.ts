@@ -4,3 +4,4 @@ export * from './format';
 export * from './cache';
 export * from './collector';
 export * from './defaults';
+export * from './detection';

@@ -73,8 +73,9 @@ describe('formatDuration / formatCountdown', () => {
 describe('statusText', () => {
   it('descreve live, stale e unavailable', () => {
     expect(statusText(claude, NOW)).toBe('ao vivo');
-    expect(statusText(codex, NOW)).toBe('lido há 25 min');
+    expect(statusText(codex, NOW)).toBe('última atividade há 25 min');
     expect(statusText({ ...claude, status: 'unavailable' }, NOW)).toBe('indisponível');
+    expect(statusText({ ...claude, status: 'not_installed' }, NOW)).toBe('não instalado');
   });
 });
 
@@ -83,6 +84,7 @@ describe('windowMax / worstPct / worstBand', () => {
     expect(windowMax(antigravity, '5h')).toBe(96);
     expect(windowMax(undefined, '5h')).toBeNull();
     expect(windowMax({ ...claude, status: 'unavailable' }, '5h')).toBeNull();
+    expect(windowMax({ ...claude, status: 'not_installed' }, '5h')).toBeNull();
   });
 
   it('pega o pior % entre todos os agentes', () => {
@@ -90,6 +92,7 @@ describe('windowMax / worstPct / worstBand', () => {
     expect(worstBand([claude, codex, antigravity])).toBe('critical');
     expect(worstPct([])).toBeNull();
     expect(worstBand([])).toBeNull();
+    expect(worstPct([{ ...claude, status: 'not_installed' }])).toBeNull();
   });
 });
 
@@ -101,6 +104,12 @@ describe('statusBarText', () => {
   it('mostra -- para agente sem dado', () => {
     expect(statusBarText([claude])).toBe('$(pulse) CC 12/46  CX --  AG --');
   });
+
+  it('omite agentes não instalados da barra de status', () => {
+    expect(statusBarText([codex, { agent: 'claude', status: 'not_installed', limits: [], fetchedAt: NOW }])).toBe(
+      '$(pulse) CX 58/41  AG --',
+    );
+  });
 });
 
 describe('buildViewModel', () => {
@@ -108,9 +117,17 @@ describe('buildViewModel', () => {
     const views = buildViewModel([codex, antigravity], NOW);
     expect(views.map((v) => v.agent)).toEqual(['claude', 'codex', 'antigravity']);
     expect(views[0]).toMatchObject({ name: 'Claude Code', status: 'unavailable', statusText: 'carregando…', limits: [] });
-    expect(views[1].statusText).toBe('lido há 25 min');
+    expect(views[1].statusText).toBe('última atividade há 25 min');
     expect(views[1].limits[0]).toEqual({ label: '5h', usedPct: 58, band: 'normal', resetText: 'reinicia em 1h40' });
     expect(views[1].limits[1]).toEqual({ label: 'Semanal', usedPct: 41, band: 'normal', resetText: 'sem janela ativa' });
     expect(views[2].limits[2]).toMatchObject({ label: 'Claude/GPT · 5h', usedPct: 96, band: 'critical' });
+  });
+
+  it('omite agentes com status not_installed', () => {
+    const views = buildViewModel(
+      [codex, { agent: 'claude', status: 'not_installed', limits: [], fetchedAt: NOW }, { agent: 'antigravity', status: 'not_installed', limits: [], fetchedAt: NOW }],
+      NOW,
+    );
+    expect(views.map((v) => v.agent)).toEqual(['codex']);
   });
 });

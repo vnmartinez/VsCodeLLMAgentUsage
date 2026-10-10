@@ -1,5 +1,6 @@
 import { open, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { isCodexInstalled } from '../../detection';
 import { UnavailableError } from '../../errors';
 import type { AgentSnapshot, Provider } from '../../types';
 import { codexSnapshot, findLatestReading } from './parse';
@@ -7,6 +8,7 @@ import { codexSnapshot, findLatestReading } from './parse';
 export interface CodexDeps {
   sessionsDir: string;
   now: () => Date;
+  isInstalled?: () => Promise<boolean>;
 }
 
 const LOOKBACK_DAYS = 7;
@@ -61,6 +63,11 @@ export class CodexProvider implements Provider {
   readonly id = 'codex' as const;
 
   constructor(private readonly deps: CodexDeps) {}
+
+  async isInstalled(): Promise<boolean> {
+    if (this.deps.isInstalled) return this.deps.isInstalled();
+    return isCodexInstalled(this.deps.sessionsDir);
+  }
 
   async fetch(signal?: AbortSignal): Promise<AgentSnapshot> {
     signal?.throwIfAborted();

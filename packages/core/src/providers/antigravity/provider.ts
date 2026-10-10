@@ -1,3 +1,4 @@
+import { isAntigravityInstalled } from '../../detection';
 import { HttpStatusError, SourceFormatError, UnavailableError } from '../../errors';
 import type { AgentSnapshot, Provider } from '../../types';
 import { parseQuotaSummary, type LanguageServer } from './parse';
@@ -8,6 +9,7 @@ export interface AntigravityDeps {
   discover: () => Promise<LanguageServer[]>;
   fetch: typeof fetch;
   now: () => Date;
+  isInstalled?: () => Promise<boolean>;
 }
 
 interface Target {
@@ -20,6 +22,11 @@ export class AntigravityProvider implements Provider {
   private target: Target | null = null;
 
   constructor(private readonly deps: AntigravityDeps) {}
+
+  async isInstalled(): Promise<boolean> {
+    if (this.deps.isInstalled) return this.deps.isInstalled();
+    return isAntigravityInstalled();
+  }
 
   async fetch(signal?: AbortSignal): Promise<AgentSnapshot> {
     if (this.target) {

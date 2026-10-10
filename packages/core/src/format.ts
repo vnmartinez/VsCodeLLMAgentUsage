@@ -26,18 +26,25 @@ export function formatCountdown(resetsAt: Date | null, now: Date): string {
 
 export function statusText(snap: AgentSnapshot, now: Date): string {
   if (snap.status === 'live') return 'ao vivo';
-  if (snap.status === 'stale') return `lido há ${formatDuration(now.getTime() - snap.fetchedAt.getTime())}`;
+  if (snap.status === 'stale') {
+    const diff = now.getTime() - snap.fetchedAt.getTime();
+    if (snap.agent === 'codex') return `última atividade há ${formatDuration(diff)}`;
+    return `lido há ${formatDuration(diff)}`;
+  }
+  if (snap.status === 'not_installed') return 'não instalado';
   return 'indisponível';
 }
 
 export function windowMax(snap: AgentSnapshot | undefined, window: LimitWindow): number | null {
-  if (!snap || snap.status === 'unavailable') return null;
+  if (!snap || snap.status === 'unavailable' || snap.status === 'not_installed') return null;
   const values = snap.limits.filter((l) => l.window === window).map((l) => l.usedPct);
   return values.length ? Math.max(...values) : null;
 }
 
 export function worstPct(snaps: AgentSnapshot[]): number | null {
-  const values = snaps.filter((s) => s.status !== 'unavailable').flatMap((s) => s.limits.map((l) => l.usedPct));
+  const values = snaps
+    .filter((s) => s.status !== 'unavailable' && s.status !== 'not_installed')
+    .flatMap((s) => s.limits.map((l) => l.usedPct));
   return values.length ? Math.max(...values) : null;
 }
 
@@ -54,11 +61,13 @@ function pctText(value: number | null): string {
 }
 
 export function statusBarText(snaps: AgentSnapshot[]): string {
-  const parts = AGENTS.map((id) => {
+  const parts = AGENTS.flatMap((id) => {
     const snap = snaps.find((s) => s.agent === id);
-    if (!snap || snap.status === 'unavailable') return `${SHORT[id]} --`;
-    return `${SHORT[id]} ${pctText(windowMax(snap, '5h'))}/${pctText(windowMax(snap, 'weekly'))}`;
+    if (snap?.status === 'not_installed') return [];
+    if (!snap || snap.status === 'unavailable') return [`${SHORT[id]} --`];
+    return [`${SHORT[id]} ${pctText(windowMax(snap, '5h'))}/${pctText(windowMax(snap, 'weekly'))}`];
   });
+  if (parts.length === 0) return '$(pulse) sem agentes';
   return `$(pulse) ${parts.join('  ')}`;
 }
 
@@ -80,25 +89,28 @@ export interface AgentView {
 
 const WINDOW_LABEL: Record<LimitWindow, string> = { '5h': '5h', weekly: 'Semanal' };
 
-/** Modelo serializável (sem Date) para tooltip e popup. */
+/** Modelo serializável (sem Date) para tooltip e popup. Omite agentes não instalados. */
 export function buildViewModel(snaps: AgentSnapshot[], now: Date): AgentView[] {
-  return AGENTS.map((id) => {
+  return AGENTS.flatMap((id): AgentView[] => {
     const snap = snaps.find((s) => s.agent === id);
+    if (snap?.status === 'not_installed') return [];
     if (!snap) {
-      return { agent: id, name: AGENT_LABEL[id], status: 'unavailable', statusText: 'carregando…', limits: [] };
+      return [{ agent: id, name: AGENT_LABEL[id], status: 'unavailable', statusText: 'carregando…', limits: [] }];
     }
-    return {
-      agent: id,
-      name: AGENT_LABEL[id],
-      status: snap.status,
-      statusText: statusText(snap, now),
-      note: snap.note,
-      limits: snap.limits.map((l) => ({
-        label: l.group ? `${l.group} · ${WINDOW_LABEL[l.window]}` : WINDOW_LABEL[l.window],
-        usedPct: Math.round(l.usedPct),
-        band: band(l.usedPct),
-        resetText: formatCountdown(l.resetsAt, now),
-      })),
-    };
+    return [
+      {
+        agent: id,
+        name: AGENT_LABEL[id],
+        status: snap.status,
+        statusText: statusText(snap, now),
+        note: snap.note,
+        limits: snap.limits.map((l) => ({
+          label: l.group ? `${l.group} · ${WINDOW_LABEL[l.window]}` : WINDOW_LABEL[l.window],
+          usedPct: Math.round(l.usedPct),
+          band: band(l.usedPct),
+          resetText: formatCountdown(l.resetsAt, now),
+        })),
+      },
+    ];
   });
 }

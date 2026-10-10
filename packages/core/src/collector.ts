@@ -29,6 +29,7 @@ export class Collector {
   private readonly timeoutMs: number;
   private readonly maxBackoffMs: number;
   private readonly now: () => Date;
+  private readonly installedStatus = new Map<AgentId, boolean>();
   private stopped = true;
 
   constructor(private readonly options: CollectorOptions) {
@@ -65,6 +66,7 @@ export class Collector {
   }
 
   async refreshNow(): Promise<void> {
+    this.installedStatus.clear();
     await Promise.all(this.options.providers.map((p) => this.runOnce(p)));
   }
 
@@ -72,16 +74,40 @@ export class Collector {
     return this.interval[id];
   }
 
+  private async isProviderInstalled(provider: Provider): Promise<boolean> {
+    if (this.installedStatus.has(provider.id)) {
+      return this.installedStatus.get(provider.id)!;
+    }
+    const isInst = provider.isInstalled ? await provider.isInstalled() : true;
+    this.installedStatus.set(provider.id, isInst);
+    return isInst;
+  }
+
   private async cycle(provider: Provider): Promise<void> {
     await this.runOnce(provider);
     if (this.stopped) return;
+    const isInst = this.installedStatus.get(provider.id) ?? true;
+    const nextInterval = isInst ? this.interval[provider.id] : 300_000;
     this.timers.set(
       provider.id,
-      setTimeout(() => void this.cycle(provider), this.interval[provider.id]),
+      setTimeout(() => void this.cycle(provider), nextInterval),
     );
   }
 
   private async runOnce(provider: Provider): Promise<void> {
+    const isInst = await this.isProviderInstalled(provider);
+    if (!isInst) {
+      this.snaps.set(provider.id, {
+        agent: provider.id,
+        status: 'not_installed',
+        limits: [],
+        fetchedAt: this.now(),
+        note: 'não instalado',
+      });
+      this.emit();
+      return;
+    }
+
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout> | undefined;
     const timeout = new Promise<never>((_, reject) => {
@@ -108,7 +134,10 @@ export class Collector {
   }
 
   private fromError(agent: AgentId, error: unknown): AgentSnapshot {
-    const note = error instanceof Error ? error.message : String(error);
+    let note = error instanceof Error ? error.message : String(error);
+    if (error instanceof HttpStatusError && error.status === 429) {
+      note = 'limite de requisições excedido (HTTP 429), aguardando liberação';
+    }
     const last = this.lastGood.get(agent);
     if (error instanceof SourceFormatError) {
       return { agent, status: 'unavailable', limits: [], fetchedAt: this.now(), note };

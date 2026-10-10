@@ -19,6 +19,7 @@ export function createDefaultCollector(options: { intervalsMs?: Partial<Record<A
         readFile: (file) => readFile(file, 'utf8'),
         fetch: globalThis.fetch,
         now,
+        cooldownMs: 60_000,
       }),
       new CodexProvider({ sessionsDir: path.join(home, '.codex', 'sessions'), now }),
       new AntigravityProvider({ discover: () => discoverLanguageServers(), fetch: globalThis.fetch, now }),

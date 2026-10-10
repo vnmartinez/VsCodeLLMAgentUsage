@@ -36,26 +36,29 @@ if (!app.requestSingleInstanceLock()) {
     const bounds = tray.getBounds();
     const area = screen.getDisplayMatching(bounds).workArea;
 
+    const views = collector ? buildViewModel(collector.current(), new Date()) : [];
+    const currentHeight = views.length === 0 ? 170 : Math.min(POPUP_HEIGHT, Math.max(160, 65 + views.length * 125));
+    popup.setSize(POPUP_WIDTH, currentHeight);
+
     let x: number;
     let y: number;
     if (bounds.width === 0 || bounds.height === 0) {
       x = area.x + area.width - POPUP_WIDTH - 12;
-      y = area.y + area.height - POPUP_HEIGHT - 12;
+      y = area.y + area.height - currentHeight - 12;
     } else {
       x = Math.min(
         Math.max(Math.round(bounds.x + bounds.width / 2 - POPUP_WIDTH / 2), area.x),
         area.x + area.width - POPUP_WIDTH,
       );
       const opensDown = bounds.y < area.y + area.height / 2;
-      y = opensDown ? bounds.y + bounds.height + 8 : bounds.y - POPUP_HEIGHT - 8;
+      y = opensDown ? bounds.y + bounds.height + 8 : bounds.y - currentHeight - 8;
     }
 
-    popup.setPosition(x, Math.min(Math.max(y, area.y), area.y + area.height - POPUP_HEIGHT));
-    if (collector) popup.webContents.send('model', buildViewModel(collector.current(), new Date()));
+    popup.setPosition(x, Math.min(Math.max(y, area.y), area.y + area.height - currentHeight));
+    if (collector) popup.webContents.send('model', views);
     shownAt = Date.now();
     popup.show();
     popup.focus();
-    void collector?.refreshNow();
   };
 
   app.on('second-instance', () => {

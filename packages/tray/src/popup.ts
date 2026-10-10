@@ -40,7 +40,12 @@ function agentNode(view: AgentView): HTMLElement {
 }
 
 function render(views: AgentView[]): void {
-  document.getElementById('root')!.replaceChildren(...views.map(agentNode));
+  const root = document.getElementById('root')!;
+  if (views.length === 0) {
+    root.replaceChildren(el('div', 'empty', 'Nenhum agente instalado detectado (Claude Code, Codex ou Antigravity).'));
+    return;
+  }
+  root.replaceChildren(...views.map(agentNode));
 }
 
 const refreshBtn = document.getElementById('refreshBtn') as HTMLButtonElement | null;

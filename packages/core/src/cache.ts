@@ -31,7 +31,7 @@ export function serialize(snaps: AgentSnapshot[]): string {
   );
 }
 
-const VALID_STATUSES: readonly string[] = ['live', 'stale', 'unavailable'];
+const VALID_STATUSES: readonly string[] = ['live', 'stale', 'unavailable', 'not_installed'];
 const VALID_WINDOWS: readonly string[] = ['5h', 'weekly'];
 
 export function deserialize(text: string): AgentSnapshot[] {

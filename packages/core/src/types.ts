@@ -1,6 +1,6 @@
 export type AgentId = 'claude' | 'codex' | 'antigravity';
 export type LimitWindow = '5h' | 'weekly';
-export type SnapshotStatus = 'live' | 'stale' | 'unavailable';
+export type SnapshotStatus = 'live' | 'stale' | 'unavailable' | 'not_installed';
 
 export interface Limit {
   agent: AgentId;
@@ -25,6 +25,7 @@ export interface AgentSnapshot {
 
 export interface Provider {
   readonly id: AgentId;
+  isInstalled?(): Promise<boolean>;
   fetch(signal?: AbortSignal): Promise<AgentSnapshot>;
 }
 

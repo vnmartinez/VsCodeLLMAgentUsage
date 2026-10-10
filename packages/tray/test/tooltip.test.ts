@@ -25,4 +25,19 @@ describe('trayTooltip', () => {
   it('respeita o limite de 127 caracteres do Windows', () => {
     expect(trayTooltip([claude]).length).toBeLessThanOrEqual(127);
   });
+
+  it('omite agentes não instalados', () => {
+    const uninstalled: AgentSnapshot = { agent: 'antigravity', status: 'not_installed', limits: [], fetchedAt: NOW };
+    const codex: AgentSnapshot = { agent: 'codex', status: 'not_installed', limits: [], fetchedAt: NOW };
+    expect(trayTooltip([claude, uninstalled, codex])).toBe('Claude Code: 12% 5h · 46% sem');
+  });
+
+  it('exibe mensagem quando nenhum agente está instalado', () => {
+    const snaps: AgentSnapshot[] = [
+      { agent: 'claude', status: 'not_installed', limits: [], fetchedAt: NOW },
+      { agent: 'codex', status: 'not_installed', limits: [], fetchedAt: NOW },
+      { agent: 'antigravity', status: 'not_installed', limits: [], fetchedAt: NOW },
+    ];
+    expect(trayTooltip(snaps)).toBe('Agent Usage: nenhum agente instalado');
+  });
 });

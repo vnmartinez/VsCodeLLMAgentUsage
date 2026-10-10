@@ -172,4 +172,50 @@ describe('Collector', () => {
     expect(byAgent(c, 'claude')).toMatchObject({ status: 'stale', note: 'token expirado, abra o Claude Code', limits: [{ usedPct: 77 }] });
     expect(cache.saved.at(-1)?.map((s) => s.agent).sort()).toEqual(['claude', 'codex']);
   });
+
+  it('não chama fetch se o provedor não estiver instalado', async () => {
+    const uninstalledProvider = {
+      id: 'antigravity' as const,
+      isInstalled: vi.fn(async () => false),
+      fetch: vi.fn(async () => snap('antigravity', 50)),
+    };
+    const c = new Collector({ providers: [uninstalledProvider], now: () => NOW });
+    await c.start();
+    c.stop();
+    expect(uninstalledProvider.fetch).not.toHaveBeenCalled();
+    expect(byAgent(c, 'antigravity')).toEqual({
+      agent: 'antigravity',
+      status: 'not_installed',
+      limits: [],
+      fetchedAt: NOW,
+      note: 'não instalado',
+    });
+  });
+
+  it('re-detecta instalação quando refreshNow é chamado', async () => {
+    let installed = false;
+    const dynamicProvider = {
+      id: 'codex' as const,
+      isInstalled: vi.fn(async () => installed),
+      fetch: vi.fn(async () => snap('codex', 15)),
+    };
+    const c = new Collector({ providers: [dynamicProvider], now: () => NOW });
+    await c.start();
+    expect(dynamicProvider.fetch).not.toHaveBeenCalled();
+    expect(byAgent(c, 'codex')?.status).toBe('not_installed');
+
+    installed = true;
+    await c.refreshNow();
+    expect(dynamicProvider.fetch).toHaveBeenCalledTimes(1);
+    expect(byAgent(c, 'codex')?.status).toBe('live');
+    c.stop();
+  });
+
+  it('formata nota amigável quando ocorre erro 429', async () => {
+    const tooMany = new HttpStatusError(429);
+    const c = new Collector({ providers: [fake('claude', tooMany)], now: () => NOW });
+    await c.start();
+    c.stop();
+    expect(byAgent(c, 'claude')?.note).toBe('limite de requisições excedido (HTTP 429), aguardando liberação');
+  });
 });
