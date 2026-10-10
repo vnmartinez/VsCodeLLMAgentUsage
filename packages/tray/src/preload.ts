@@ -6,4 +6,5 @@ contextBridge.exposeInMainWorld('agentUsage', {
     ipcRenderer.on('model', (_event, views: AgentView[]) => callback(views));
   },
   getModel: (): Promise<AgentView[]> => ipcRenderer.invoke('get-model'),
+  refreshNow: (): Promise<void> => ipcRenderer.invoke('refresh-now'),
 });

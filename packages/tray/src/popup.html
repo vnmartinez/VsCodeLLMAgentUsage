@@ -9,8 +9,18 @@
       color-scheme: dark;
       --bg: #1f1f1f; --fg: #e6e6e6; --muted: #9a9a9a; --track: #3a3a3a;
       --normal: #2e9e5b; --warning: #d9a400; --critical: #d93a3a;
+      --btn-bg: #2d2d2d; --btn-hover: #3a3a3a;
     }
     body { margin: 0; padding: 12px 14px; background: var(--bg); color: var(--fg); font: 13px 'Segoe UI', sans-serif; user-select: none; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--track); }
+    .toolbar-title { font-weight: 600; font-size: 13px; }
+    .btn-refresh {
+      background: var(--btn-bg); color: var(--fg); border: 1px solid var(--track);
+      border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-refresh:hover { background: var(--btn-hover); }
+    .btn-refresh:disabled { opacity: .55; cursor: default; }
     .agent { margin-bottom: 14px; }
     .agent.unavailable { opacity: .55; }
     .head { display: flex; justify-content: space-between; font-weight: 600; }
@@ -27,6 +37,10 @@
   </style>
 </head>
 <body>
+  <header class="toolbar">
+    <span class="toolbar-title">Agent Usage</span>
+    <button id="refreshBtn" class="btn-refresh" type="button">↻ Atualizar tudo</button>
+  </header>
   <main id="root">carregando…</main>
   <script src="popup.js"></script>
 </body>

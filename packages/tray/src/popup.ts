@@ -5,6 +5,7 @@ declare global {
     agentUsage: {
       onModel(callback: (views: AgentView[]) => void): void;
       getModel(): Promise<AgentView[]>;
+      refreshNow(): Promise<void>;
     };
   }
 }
@@ -40,6 +41,20 @@ function agentNode(view: AgentView): HTMLElement {
 
 function render(views: AgentView[]): void {
   document.getElementById('root')!.replaceChildren(...views.map(agentNode));
+}
+
+const refreshBtn = document.getElementById('refreshBtn') as HTMLButtonElement | null;
+if (refreshBtn) {
+  refreshBtn.addEventListener('click', async () => {
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = '↻ Atualizando…';
+    try {
+      await window.agentUsage.refreshNow();
+    } finally {
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = '↻ Atualizar tudo';
+    }
+  });
 }
 
 window.agentUsage.onModel(render);
