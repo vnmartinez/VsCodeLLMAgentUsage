@@ -2,7 +2,7 @@
   "name": "agent-usage",
   "displayName": "Agent Usage",
   "description": "Limites de 5h e semanal de Claude Code, Codex e Antigravity na status bar",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "vnmartinez",
   "engines": {
     "vscode": "^1.100.0"

@@ -4,3 +4,4 @@ release/
 dist-release/
 out/
 *.vsix
+.vscode/

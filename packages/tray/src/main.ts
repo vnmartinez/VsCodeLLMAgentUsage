@@ -1,9 +1,53 @@
+import { execFile } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, Tray } from 'electron';
 import { band, buildViewModel, createDefaultCollector, worstPct } from '@agent-usage/core';
 import { ICON_SIZE, renderIconBitmap } from './icon';
 import { createSafeRender } from './render';
 import { trayTooltip } from './tooltip';
+
+const isDebug = Boolean(process.env.DEBUG_AGENT_USAGE);
+const debugLogPath = path.join(process.env.APPDATA ?? '', 'agent-usage', 'debug.log');
+function logDebug(msg: string, force = false) {
+  if (!isDebug && !force) return;
+  try {
+    fs.mkdirSync(path.dirname(debugLogPath), { recursive: true });
+    fs.appendFileSync(debugLogPath, `[${new Date().toISOString()}] [PID ${process.pid}] ${msg}\n`);
+  } catch {
+    // ignore
+  }
+}
+
+process.on('uncaughtException', (err) => {
+  logDebug(`uncaughtException: ${err?.stack || err}`, true);
+});
+
+process.on('unhandledRejection', (reason) => {
+  logDebug(`unhandledRejection: ${reason}`, true);
+});
+
+app.setAppUserModelId('com.vnmartinez.agentusage');
+logDebug(`App starting. execPath=${process.execPath}, isPackaged=${app.isPackaged}`);
+
+function promoteTrayIcon(): void {
+  if (process.platform !== 'win32') return;
+  const exePath = process.execPath;
+  const script = `
+    $target = '${exePath.replace(/'/g, "''")}';
+    $base = 'HKCU:\\Control Panel\\NotifyIconSettings';
+    Get-ChildItem -Path $base -ErrorAction SilentlyContinue | ForEach-Object {
+      $p = Get-ItemProperty $_.PSPath;
+      if ($p.ExecutablePath -eq $target -and $p.IsPromoted -ne 1) {
+        Set-ItemProperty -Path $_.PSPath -Name 'IsPromoted' -Value 1 -Type DWord -Force;
+      }
+    }
+  `;
+  execFile('powershell', ['-NoProfile', '-NonInteractive', '-Command', script], (err) => {
+    if (err) logDebug(`promoteTrayIcon error: ${err.message}`, true);
+    else logDebug('promoteTrayIcon executed');
+  });
+}
 
 const POPUP_WIDTH = 340;
 const POPUP_HEIGHT = 460;
@@ -21,8 +65,10 @@ let hiddenAt = 0;
 let shownAt = 0;
 
 if (!app.requestSingleInstanceLock()) {
+  logDebug('Single instance lock failed, quitting.');
   app.quit();
 } else {
+  logDebug('Single instance lock acquired.');
   // App de bandeja: continua rodando sem janelas visíveis.
   app.on('window-all-closed', () => {});
 
@@ -66,8 +112,23 @@ if (!app.requestSingleInstanceLock()) {
   });
 
   void app.whenReady().then(() => {
-    collector = createDefaultCollector();
-    tray = new Tray(iconFor(null));
+    logDebug('whenReady started');
+    try {
+      collector = createDefaultCollector();
+      logDebug('createDefaultCollector completed');
+      const initialIcon = iconFor(null);
+      logDebug(`icon created: isEmpty=${initialIcon.isEmpty()}, size=${JSON.stringify(initialIcon.getSize())}`);
+      tray = new Tray(initialIcon);
+      logDebug(`Tray created: bounds=${JSON.stringify(tray.getBounds())}`);
+      promoteTrayIcon();
+      setTimeout(promoteTrayIcon, 1000);
+    } catch (err: any) {
+      logDebug(`Error during whenReady setup: ${err?.stack || err}`);
+    }
+    if (!collector || !tray) {
+      logDebug('Initialization failed: collector or tray is null.');
+      return;
+    }
     popup = new BrowserWindow({
       width: POPUP_WIDTH,
       height: POPUP_HEIGHT,
@@ -94,8 +155,11 @@ if (!app.requestSingleInstanceLock()) {
     const render = createSafeRender(() => {
       if (!collector || !tray) return;
       const snaps = collector.current();
-      tray.setImage(iconFor(worstPct(snaps)));
-      tray.setToolTip(trayTooltip(snaps));
+      const worst = worstPct(snaps);
+      const tip = trayTooltip(snaps);
+      logDebug(`render: worst=${worst}, snapsCount=${snaps.length}, tip="${tip}"`);
+      tray.setImage(iconFor(worst));
+      tray.setToolTip(tip);
       if (popup?.isVisible()) popup.webContents.send('model', model());
     });
 
