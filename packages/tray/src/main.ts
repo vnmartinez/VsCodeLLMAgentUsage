@@ -6,6 +6,7 @@ import { band, buildViewModel, createDefaultCollector, worstPct } from '@agent-u
 import { ICON_SIZE, renderIconBitmap } from './icon';
 import { createSafeRender } from './render';
 import { trayTooltip } from './tooltip';
+import { buildPromoteScript } from './promote';
 
 const isDebug = Boolean(process.env.DEBUG_AGENT_USAGE);
 const debugLogPath = path.join(process.env.APPDATA ?? '', 'agent-usage', 'debug.log');
@@ -33,16 +34,7 @@ logDebug(`App starting. execPath=${process.execPath}, isPackaged=${app.isPackage
 function promoteTrayIcon(): void {
   if (process.platform !== 'win32') return;
   const exePath = process.execPath;
-  const script = `
-    $target = '${exePath.replace(/'/g, "''")}';
-    $base = 'HKCU:\\Control Panel\\NotifyIconSettings';
-    Get-ChildItem -Path $base -ErrorAction SilentlyContinue | ForEach-Object {
-      $p = Get-ItemProperty $_.PSPath;
-      if ($p.ExecutablePath -eq $target -and $p.IsPromoted -ne 1) {
-        Set-ItemProperty -Path $_.PSPath -Name 'IsPromoted' -Value 1 -Type DWord -Force;
-      }
-    }
-  `;
+  const script = buildPromoteScript(exePath);
   execFile('powershell', ['-NoProfile', '-NonInteractive', '-Command', script], (err) => {
     if (err) logDebug(`promoteTrayIcon error: ${err.message}`, true);
     else logDebug('promoteTrayIcon executed');
