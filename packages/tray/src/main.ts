@@ -127,6 +127,7 @@ if (!app.requestSingleInstanceLock()) {
     }
     if (!collector || !tray) {
       logDebug('Initialization failed: collector or tray is null.');
+      app.quit();
       return;
     }
     popup = new BrowserWindow({
@@ -203,5 +204,8 @@ if (!app.requestSingleInstanceLock()) {
     renderTimer = setInterval(render, 30_000); // mantém as contagens regressivas atualizadas
     render();
     void collector.start();
+  }).catch((err) => {
+    logDebug(`whenReady failed: ${err?.stack || err}`, true);
+    app.quit();
   });
 }
