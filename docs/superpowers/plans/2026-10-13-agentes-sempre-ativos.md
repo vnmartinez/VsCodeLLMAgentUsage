@@ -96,9 +96,9 @@
 
 **Files:** Modify `README.md` e `packages/vscode/README.md` (se citarem os estados antigos); hub do projeto no vault `C:\SegundoCerebro`.
 
-- [ ] **Step 1:** `grep -n "ao vivo\|inativ\|última atividade" README.md packages/vscode/README.md`; ajustar os trechos encontrados e descrever "sempre ativo" + refresh ao abrir.
-- [ ] **Step 2:** no hub do vault, trocar a linha "Codex status: quando inativo…" por "agentes sempre ativos; refresh ao abrir e forçado no botão"; depois do release atualizar `commit_base:`; subir com `powershell -NoProfile -ExecutionPolicy Bypass -File C:\SegundoCerebro\scripts\vault-sync.ps1 push -Message "agentes sempre ativos v0.2.0"`.
-- [ ] **Step 3:** commit `docs: agentes sempre ativos`.
+- [x] **Step 1:** `grep -n "ao vivo\|inativ\|última atividade" README.md packages/vscode/README.md`; ajustar os trechos encontrados e descrever "sempre ativo" + refresh ao abrir.
+- [x] **Step 2:** no hub do vault, trocar a linha "Codex status: quando inativo…" por "agentes sempre ativos; refresh ao abrir e forçado no botão"; depois do release atualizar `commit_base:`; subir com `powershell -NoProfile -ExecutionPolicy Bypass -File C:\SegundoCerebro\scripts\vault-sync.ps1 push -Message "agentes sempre ativos v0.2.0"`.
+- [x] **Step 3:** commit `docs: agentes sempre ativos`.
 
 ### Task 7: Release v0.2.0
 
