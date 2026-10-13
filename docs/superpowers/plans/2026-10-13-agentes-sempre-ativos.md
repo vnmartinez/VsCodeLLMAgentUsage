@@ -104,9 +104,9 @@
 
 **Files:** Modify `packages/core/package.json`, `packages/tray/package.json`, `packages/vscode/package.json`, `package-lock.json`, `README.md` (links `0.1.1` → `0.2.0`)
 
-- [ ] **Step 1: Pré-condição:** `npm test` e `npm run typecheck` verdes; `git status` sem pendências (o `SKILL.md` não rastreado NÃO entra nos commits).
-- [ ] **Step 2: Bump:** `npm version 0.2.0 --no-git-tag-version --workspaces`; `sed -i 's/0\.1\.1/0.2.0/g' README.md`. Verificar: `grep -rn "0\.1\.1" README.md packages/*/package.json package-lock.json` → vazio.
-- [ ] **Step 3: Artefatos:** `npm run dist -w packages/tray` → instalador em `packages/tray/release/`; `npm run package -w packages/vscode` → `packages/vscode/agent-usage-0.2.0.vsix`. Garantir que o asset do instalador se chame `Agent.Usage.Setup.0.2.0.exe` (nome usado nos links do README).
-- [ ] **Step 4: Commit e tag:** `git add package-lock.json README.md packages/*/package.json && git commit -m "chore: release v0.2.0"`; `git tag v0.2.0`.
-- [ ] **Step 5: Publicar:** `git push origin main --tags`; `gh release create v0.2.0 <instalador.exe> packages/vscode/agent-usage-0.2.0.vsix --title "Agent Usage v0.2.0" --notes "Agentes sempre ativos; atualização ao abrir o painel e no botão Atualizar tudo."` (o push/release é ação externa: confirmar com o usuário se não houver autorização durável).
-- [ ] **Step 6: Verificar:** `gh release view v0.2.0 --json tagName,assets` lista os 2 assets; `git tag` inclui `v0.2.0`.
+- [x] **Step 1: Pré-condição:** `npm test` e `npm run typecheck` verdes; `git status` sem pendências (o `SKILL.md` não rastreado NÃO entra nos commits).
+- [x] **Step 2: Bump:** `npm version 0.2.0 --no-git-tag-version --workspaces`; `sed -i 's/0\.1\.1/0.2.0/g' README.md`. Verificar: `grep -rn "0\.1\.1" README.md packages/*/package.json package-lock.json` → vazio.
+- [x] **Step 3: Artefatos:** `npm run dist -w packages/tray` → instalador em `packages/tray/release/`; `npm run package -w packages/vscode` → `packages/vscode/agent-usage-0.2.0.vsix`. Garantir que o asset do instalador se chame `Agent.Usage.Setup.0.2.0.exe` (nome usado nos links do README).
+- [x] **Step 4: Commit e tag:** `git add package-lock.json README.md packages/*/package.json && git commit -m "chore: release v0.2.0"`; `git tag v0.2.0`.
+- [x] **Step 5: Publicar:** `git push origin main --tags`; `gh release create v0.2.0 <instalador.exe> packages/vscode/agent-usage-0.2.0.vsix --title "Agent Usage v0.2.0" --notes "Agentes sempre ativos; atualização ao abrir o painel e no botão Atualizar tudo."` (o push/release é ação externa: confirmar com o usuário se não houver autorização durável).
+- [x] **Step 6: Verificar:** `gh release view v0.2.0 --json tagName,assets` lista os 2 assets; `git tag` inclui `v0.2.0`.
