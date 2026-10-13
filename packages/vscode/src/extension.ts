@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(
     item,
-    vscode.commands.registerCommand('agentUsage.refresh', () => collector.refreshNow()),
+    vscode.commands.registerCommand('agentUsage.refresh', () => collector.refreshNow({ force: true })),
     {
       dispose: () => {
         unsubscribe();

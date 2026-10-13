@@ -5,6 +5,7 @@ import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, Tray } from 'el
 import { band, buildViewModel, createDefaultCollector, worstPct } from '@agent-usage/core';
 import { ICON_SIZE, renderIconBitmap } from './icon';
 import { createSafeRender } from './render';
+import { refreshForced, refreshOnOpen } from './refresh';
 import { trayTooltip } from './tooltip';
 import { buildPromoteScript } from './promote';
 
@@ -94,6 +95,7 @@ if (!app.requestSingleInstanceLock()) {
 
     popup.setPosition(x, Math.min(Math.max(y, area.y), area.y + area.height - currentHeight));
     if (collector) popup.webContents.send('model', views);
+    refreshOnOpen(collector);
     shownAt = Date.now();
     popup.show();
     popup.focus();
@@ -137,7 +139,7 @@ if (!app.requestSingleInstanceLock()) {
 
     const model = () => (collector ? buildViewModel(collector.current(), new Date()) : []);
     ipcMain.handle('get-model', () => model());
-    ipcMain.handle('refresh-now', () => collector?.refreshNow());
+    ipcMain.handle('refresh-now', () => refreshForced(collector));
 
     popup.on('blur', () => {
       if (Date.now() - shownAt < 250) return; // evita fechamento prematuro por race condition de foco
@@ -159,7 +161,7 @@ if (!app.requestSingleInstanceLock()) {
     tray.setContextMenu(
       Menu.buildFromTemplate([
         { label: 'Abrir painel', click: togglePopup },
-        { label: 'Atualizar agora', click: () => void collector?.refreshNow() },
+        { label: 'Atualizar agora', click: () => void refreshForced(collector) },
         {
           label: 'Iniciar com o Windows',
           type: 'checkbox',

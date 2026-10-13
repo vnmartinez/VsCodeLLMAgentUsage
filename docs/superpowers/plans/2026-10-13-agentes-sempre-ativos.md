@@ -86,11 +86,11 @@
 
 **Interfaces:** Consumes: `Collector.refreshNow`. Produces: `refreshOnOpen(c: Refreshable | null): void` (chama `refreshNow()` sem argumentos, engole rejeição); `refreshForced(c: Refreshable | null): Promise<void> | undefined` (chama `refreshNow({ force: true })`), com `Refreshable = { refreshNow(o?: { force?: boolean }): Promise<void> }`.
 
-- [ ] **Step 1: Teste (falha)** `refresh.test.ts`: `refreshOnOpen(c)` → `refreshNow` chamado 1× sem argumentos; `refreshOnOpen(null)` não lança; `refreshNow` rejeitando não gera rejeição não tratada; `refreshForced(c)` → chamado com `{ force: true }`.
-- [ ] **Step 2:** `npx vitest run packages/tray/test/refresh.test.ts` → FAIL (módulo inexistente).
-- [ ] **Step 3: Implementar** `refresh.ts`; em `main.ts`: em `togglePopup`, antes de `popup.show()`, `refreshOnOpen(collector)`; `ipcMain.handle('refresh-now', () => refreshForced(collector))`; item de menu "Atualizar agora" → `void refreshForced(collector)`. Em `extension.ts`: comando `agentUsage.refresh` → `collector.refreshNow({ force: true })`. (O popup visível re-renderiza via `collector.subscribe(render)`.)
-- [ ] **Step 4:** `npx vitest run packages/tray/test/refresh.test.ts` → PASS; `npm test` e `npm run typecheck` verdes. Smoke manual: `npm run build -w packages/tray && npm start -w packages/tray`; abrir popup atualiza dados, nenhum texto de inatividade, botão atualiza.
-- [ ] **Step 5:** commit `feat(tray): atualiza ao abrir o painel e força no botão`.
+- [x] **Step 1: Teste (falha)** `refresh.test.ts`: `refreshOnOpen(c)` → `refreshNow` chamado 1× sem argumentos; `refreshOnOpen(null)` não lança; `refreshNow` rejeitando não gera rejeição não tratada; `refreshForced(c)` → chamado com `{ force: true }`.
+- [x] **Step 2:** `npx vitest run packages/tray/test/refresh.test.ts` → FAIL (módulo inexistente).
+- [x] **Step 3: Implementar** `refresh.ts`; em `main.ts`: em `togglePopup`, antes de `popup.show()`, `refreshOnOpen(collector)`; `ipcMain.handle('refresh-now', () => refreshForced(collector))`; item de menu "Atualizar agora" → `void refreshForced(collector)`. Em `extension.ts`: comando `agentUsage.refresh` → `collector.refreshNow({ force: true })`. (O popup visível re-renderiza via `collector.subscribe(render)`.)
+- [x] **Step 4:** `npx vitest run packages/tray/test/refresh.test.ts` → PASS; `npm test` e `npm run typecheck` verdes. Smoke manual: `npm run build -w packages/tray && npm start -w packages/tray`; abrir popup atualiza dados, nenhum texto de inatividade, botão atualiza.
+- [x] **Step 5:** commit `feat(tray): atualiza ao abrir o painel e força no botão`.
 
 ### Task 6: Documentação e vault
 
