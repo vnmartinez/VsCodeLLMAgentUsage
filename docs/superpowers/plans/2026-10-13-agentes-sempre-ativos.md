@@ -58,13 +58,13 @@
 
 **Interfaces:** Produces: `new UnavailableError(note: string, quiet = false)` com `readonly quiet: boolean`.
 
-- [ ] **Step 1: Testes (devem falhar)**
+- [x] **Step 1: Testes (devem falhar)**
   - `antigravity.test.ts` (`'fica indisponível sem language_server'`): `rejects.toMatchObject({ name: 'UnavailableError', quiet: true })`; adicionar caso "aberto, sem resposta de cota" (`discover` devolve servidor cujo fetch responde 400) com o mesmo `toMatchObject`.
   - `collector.test.ts`: `'erro quiet mantém último valor como live sem nota'` — `fake('antigravity', snap('antigravity', 30), new UnavailableError('x', true))`, `start()` + `refreshNow()` → `toMatchObject({ status: 'live', limits: [{ usedPct: 30 }] })` e `note` `toBeUndefined()`. `'erro quiet sem último valor fica unavailable'` — só o erro quiet → `status: 'unavailable'`, `limits: []`. O teste existente de `UnavailableError` não-quiet (~linha 96) permanece inalterado.
-- [ ] **Step 2:** `npx vitest run packages/core/test/antigravity.test.ts packages/core/test/collector.test.ts` → FAIL.
-- [ ] **Step 3: Implementar** — `errors.ts`: construtor `(note: string, readonly quiet = false)`; `provider.ts`: os dois `throw new UnavailableError(...)` finais passam `true`; `collector.ts` `fromError`: antes do ramo genérico de `UnavailableError`, `if (error instanceof UnavailableError && error.quiet && last) return { ...last, status: 'live', note: undefined };`.
-- [ ] **Step 4:** testes → PASS; `npm test` completo verde.
-- [ ] **Step 5:** commit `feat(core): antigravity fechado mantém último valor como ativo`.
+- [x] **Step 2:** `npx vitest run packages/core/test/antigravity.test.ts packages/core/test/collector.test.ts` → FAIL.
+- [x] **Step 3: Implementar** — `errors.ts`: construtor `(note: string, readonly quiet = false)`; `provider.ts`: os dois `throw new UnavailableError(...)` finais passam `true`; `collector.ts` `fromError`: antes do ramo genérico de `UnavailableError`, `if (error instanceof UnavailableError && error.quiet && last) return { ...last, status: 'live', note: undefined };`.
+- [x] **Step 4:** testes → PASS; `npm test` completo verde.
+- [x] **Step 5:** commit `feat(core): antigravity fechado mantém último valor como ativo`.
 
 ### Task 4: Refresh com `force` (core + Claude)
 

@@ -38,7 +38,7 @@ export class AntigravityProvider implements Provider {
       }
     }
     const servers = await this.deps.discover();
-    if (servers.length === 0) throw new UnavailableError('Antigravity fechado');
+    if (servers.length === 0) throw new UnavailableError('Antigravity fechado', true);
     for (const server of servers) {
       for (const port of server.ports) {
         const candidate = { port, csrfToken: server.csrfToken };
@@ -51,7 +51,7 @@ export class AntigravityProvider implements Provider {
         }
       }
     }
-    throw new UnavailableError('Antigravity aberto, mas sem resposta de cota');
+    throw new UnavailableError('Antigravity aberto, mas sem resposta de cota', true);
   }
 
   private async query(target: Target, signal?: AbortSignal): Promise<AgentSnapshot> {

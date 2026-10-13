@@ -100,7 +100,16 @@ describe('AntigravityProvider', () => {
       fetch: vi.fn() as unknown as typeof globalThis.fetch,
       now: () => NOW,
     });
-    await expect(provider.fetch()).rejects.toThrow(new UnavailableError('Antigravity fechado'));
+    await expect(provider.fetch()).rejects.toMatchObject({ name: 'UnavailableError', quiet: true });
+  });
+
+  it('fica indisponível (quiet) quando aberto sem resposta de cota', async () => {
+    const provider = new AntigravityProvider({
+      discover: async () => [server],
+      fetch: (async () => jsonResponse({ error: 'x' }, 400)) as unknown as typeof globalThis.fetch,
+      now: () => NOW,
+    });
+    await expect(provider.fetch()).rejects.toMatchObject({ name: 'UnavailableError', quiet: true });
   });
 
   it('tenta as portas até uma responder e reaproveita o alvo', async () => {

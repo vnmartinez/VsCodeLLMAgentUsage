@@ -16,7 +16,11 @@ export class StaleError extends Error {
 
 /** A fonte não existe agora (processo fechado, sem login, sem sessões). */
 export class UnavailableError extends Error {
-  constructor(note: string) {
+  /** Fonte ociosa/fechada: o coletor mantém o último valor como ativo, sem nota. */
+  constructor(
+    note: string,
+    readonly quiet = false,
+  ) {
     super(note);
     this.name = 'UnavailableError';
   }

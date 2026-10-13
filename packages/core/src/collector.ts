@@ -142,6 +142,7 @@ export class Collector {
     if (error instanceof SourceFormatError) {
       return { agent, status: 'unavailable', limits: [], fetchedAt: this.now(), note };
     }
+    if (error instanceof UnavailableError && error.quiet && last) return { ...last, status: 'live', note: undefined };
     if (error instanceof UnavailableError) {
       return { agent, status: 'unavailable', limits: last?.limits ?? [], fetchedAt: last?.fetchedAt ?? this.now(), note };
     }

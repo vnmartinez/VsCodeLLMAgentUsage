@@ -102,6 +102,23 @@ describe('Collector', () => {
     expect(byAgent(c, 'antigravity')).toMatchObject({ status: 'unavailable', note: 'Antigravity fechado', limits: [{ usedPct: 30 }] });
   });
 
+  it('erro quiet mantém último valor como live sem nota', async () => {
+    const c = new Collector({ providers: [fake('antigravity', snap('antigravity', 30), new UnavailableError('x', true))], now: () => NOW });
+    await c.start();
+    await c.refreshNow();
+    c.stop();
+    const result = byAgent(c, 'antigravity');
+    expect(result).toMatchObject({ status: 'live', limits: [{ usedPct: 30 }] });
+    expect(result?.note).toBeUndefined();
+  });
+
+  it('erro quiet sem último valor fica unavailable', async () => {
+    const c = new Collector({ providers: [fake('antigravity', new UnavailableError('x', true))], now: () => NOW });
+    await c.start();
+    c.stop();
+    expect(byAgent(c, 'antigravity')).toMatchObject({ status: 'unavailable', limits: [] });
+  });
+
   it('SourceFormatError vira unavailable sem números', async () => {
     const c = new Collector({ providers: [fake('antigravity', snap('antigravity', 30), new SourceFormatError('x'))], now: () => NOW });
     await c.start();
