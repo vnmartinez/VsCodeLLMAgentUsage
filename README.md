@@ -25,6 +25,7 @@
   - Exibe o percentual do agente com maior consumo no momento.
   - Mudança de cor dinâmica por faixa: normal (verde), aviso (amarelo) e crítico (vermelho).
   - Popup escuro, rápido e moderno com barras de progresso e botão **"↻ Atualizar tudo"**.
+  - Agentes sempre ativos: o painel atualiza ao abrir e o botão força a coleta na hora.
   - Suporte a iniciar junto com o Windows.
 - **Extensão para VS Code:**
   - Exibe o resumo na barra de status (`CC 12/46  CX 58/41  AG 11/49`).
