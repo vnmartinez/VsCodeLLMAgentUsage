@@ -46,11 +46,11 @@
 
 **Interfaces:** Produces: `codexSnapshot(reading, now)` sempre com `status: 'live'`; `CODEX_LIVE_MS` removido.
 
-- [ ] **Step 1: Teste (falha)** — trocar `'fica stale com leitura de mais de 10 min'` por `'continua live com leitura antiga'`: `codexSnapshot(..., new Date('2026-09-21T16:00:00Z')).status` `toBe('live')`. No teste `'zera a janela que já reiniciou'` acrescentar `expect(snap.status).toBe('live')`.
-- [ ] **Step 2:** `npx vitest run packages/core/test/codex.test.ts` → FAIL.
-- [ ] **Step 3:** `codexSnapshot` usa `status: 'live'`; apagar `CODEX_LIVE_MS` e o cálculo de idade; `grep -rn CODEX_LIVE_MS packages` deve ficar vazio (checar `index.ts`).
-- [ ] **Step 4:** teste → PASS; `npm run typecheck` limpo.
-- [ ] **Step 5:** commit `feat(core): codex sempre live`.
+- [x] **Step 1: Teste (falha)** — trocar `'fica stale com leitura de mais de 10 min'` por `'continua live com leitura antiga'`: `codexSnapshot(..., new Date('2026-09-21T16:00:00Z')).status` `toBe('live')`. No teste `'zera a janela que já reiniciou'` acrescentar `expect(snap.status).toBe('live')`.
+- [x] **Step 2:** `npx vitest run packages/core/test/codex.test.ts` → FAIL.
+- [x] **Step 3:** `codexSnapshot` usa `status: 'live'`; apagar `CODEX_LIVE_MS` e o cálculo de idade; `grep -rn CODEX_LIVE_MS packages` deve ficar vazio (checar `index.ts`).
+- [x] **Step 4:** teste → PASS; `npm run typecheck` limpo.
+- [x] **Step 5:** commit `feat(core): codex sempre live`.
 
 ### Task 3: Antigravity sempre ativo (erro `quiet` + coletor)
 

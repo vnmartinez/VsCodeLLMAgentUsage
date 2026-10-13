@@ -12,8 +12,6 @@ export interface CodexReading {
   windows: RawWindow[];
 }
 
-export const CODEX_LIVE_MS = 10 * 60_000;
-
 const WINDOW_BY_MINUTES: Record<number, LimitWindow> = { 300: '5h', 10080: 'weekly' };
 
 function isRawWindow(value: unknown): value is RawWindow {
@@ -64,10 +62,9 @@ export function codexSnapshot(reading: CodexReading, now: Date): AgentSnapshot {
     }
     return { agent: 'codex', window, usedPct: w.used_percent, resetsAt };
   });
-  const age = now.getTime() - reading.timestamp.getTime();
   return {
     agent: 'codex',
-    status: age < CODEX_LIVE_MS ? 'live' : 'stale',
+    status: 'live',
     limits,
     fetchedAt: reading.timestamp,
     note: reset ? 'janela reiniciada desde a última leitura' : undefined,

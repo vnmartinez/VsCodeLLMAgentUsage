@@ -67,9 +67,9 @@ describe('codexSnapshot', () => {
     });
   });
 
-  it('fica stale com leitura de mais de 10 min', async () => {
+  it('continua live com leitura antiga', async () => {
     const snap = codexSnapshot(findLatestReading(await fixtureText())!, new Date('2026-09-21T16:00:00Z'));
-    expect(snap.status).toBe('stale');
+    expect(snap.status).toBe('live');
   });
 
   it('zera a janela que já reiniciou', async () => {
@@ -77,6 +77,7 @@ describe('codexSnapshot', () => {
     expect(snap.limits[0]).toEqual({ agent: 'codex', window: '5h', usedPct: 0, resetsAt: null });
     expect(snap.limits[1].usedPct).toBe(41);
     expect(snap.note).toBe('janela reiniciada desde a última leitura');
+    expect(snap.status).toBe('live');
   });
 
   it('rejeita janela de duração desconhecida', async () => {
