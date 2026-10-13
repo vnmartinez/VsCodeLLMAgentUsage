@@ -18,19 +18,14 @@ export function formatDuration(ms: number): string {
 }
 
 export function formatCountdown(resetsAt: Date | null, now: Date): string {
-  if (!resetsAt) return 'sem janela ativa';
+  if (!resetsAt) return 'janela livre';
   const diff = resetsAt.getTime() - now.getTime();
   if (diff <= 0) return 'reinicia agora';
   return `reinicia em ${formatDuration(diff)}`;
 }
 
-export function statusText(snap: AgentSnapshot, now: Date): string {
-  if (snap.status === 'live') return 'ao vivo';
-  if (snap.status === 'stale') {
-    const diff = now.getTime() - snap.fetchedAt.getTime();
-    if (snap.agent === 'codex') return `última atividade há ${formatDuration(diff)}`;
-    return `lido há ${formatDuration(diff)}`;
-  }
+export function statusText(snap: AgentSnapshot, _now: Date): string {
+  if (snap.status === 'live' || snap.status === 'stale') return 'ativo';
   if (snap.status === 'not_installed') return 'não instalado';
   return 'indisponível';
 }

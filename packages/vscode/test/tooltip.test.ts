@@ -7,7 +7,7 @@ const VIEWS: AgentView[] = [
     agent: 'claude',
     name: 'Claude Code',
     status: 'live',
-    statusText: 'ao vivo',
+    statusText: 'ativo',
     limits: [
       { label: '5h', usedPct: 12, band: 'normal', resetText: 'reinicia em 3h56' },
       { label: 'Semanal', usedPct: 96, band: 'critical', resetText: 'reinicia em 3d 6h' },
@@ -26,7 +26,7 @@ const VIEWS: AgentView[] = [
 describe('tooltipMarkdown', () => {
   it('lista agentes, janelas, marcas de faixa e notas', () => {
     const md = tooltipMarkdown(VIEWS);
-    expect(md).toContain('**Claude Code** · ao vivo');
+    expect(md).toContain('**Claude Code** · ativo');
     expect(md).toContain('5h: **12%** · reinicia em 3h56');
     expect(md).toContain('Semanal: **96%** ⛔ · reinicia em 3d 6h');
     expect(md).toContain('**Codex** · indisponível');

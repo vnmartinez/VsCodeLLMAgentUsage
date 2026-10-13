@@ -66,14 +66,14 @@ describe('formatDuration / formatCountdown', () => {
   it('formata a contagem regressiva do reset', () => {
     expect(formatCountdown(new Date('2026-09-21T21:13:00Z'), NOW)).toBe('reinicia em 2h13');
     expect(formatCountdown(new Date('2026-09-21T18:00:00Z'), NOW)).toBe('reinicia agora');
-    expect(formatCountdown(null, NOW)).toBe('sem janela ativa');
+    expect(formatCountdown(null, NOW)).toBe('janela livre');
   });
 });
 
 describe('statusText', () => {
   it('descreve live, stale e unavailable', () => {
-    expect(statusText(claude, NOW)).toBe('ao vivo');
-    expect(statusText(codex, NOW)).toBe('última atividade há 25 min');
+    expect(statusText(claude, NOW)).toBe('ativo');
+    expect(statusText(codex, NOW)).toBe('ativo');
     expect(statusText({ ...claude, status: 'unavailable' }, NOW)).toBe('indisponível');
     expect(statusText({ ...claude, status: 'not_installed' }, NOW)).toBe('não instalado');
   });
@@ -117,9 +117,9 @@ describe('buildViewModel', () => {
     const views = buildViewModel([codex, antigravity], NOW);
     expect(views.map((v) => v.agent)).toEqual(['claude', 'codex', 'antigravity']);
     expect(views[0]).toMatchObject({ name: 'Claude Code', status: 'unavailable', statusText: 'carregando…', limits: [] });
-    expect(views[1].statusText).toBe('última atividade há 25 min');
+    expect(views[1].statusText).toBe('ativo');
     expect(views[1].limits[0]).toEqual({ label: '5h', usedPct: 58, band: 'normal', resetText: 'reinicia em 1h40' });
-    expect(views[1].limits[1]).toEqual({ label: 'Semanal', usedPct: 41, band: 'normal', resetText: 'sem janela ativa' });
+    expect(views[1].limits[1]).toEqual({ label: 'Semanal', usedPct: 41, band: 'normal', resetText: 'janela livre' });
     expect(views[2].limits[2]).toMatchObject({ label: 'Claude/GPT · 5h', usedPct: 96, band: 'critical' });
   });
 

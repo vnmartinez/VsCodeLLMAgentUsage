@@ -32,13 +32,13 @@
 
 **Interfaces:** Produces: `statusText(snap, now): string` → `'ativo'` para `live`/`stale`; `formatCountdown(null, now)` → `'janela livre'`.
 
-- [ ] **Step 1: Atualizar testes (devem falhar)**
+- [x] **Step 1: Atualizar testes (devem falhar)**
   - `format.test.ts`: `formatCountdown(null, NOW)` `toBe('janela livre')`; `statusText(claude, NOW)` `toBe('ativo')`; `statusText(codex, NOW)` (stale) `toBe('ativo')`; unavailable/not_installed inalterados; no teste do view model (~linhas 120-122) `views[1].statusText` `toBe('ativo')` e `limits[1]` com `resetText: 'janela livre'`.
   - `vscode/test/tooltip.test.ts`: fixture `statusText: 'ativo'`, expectativa `'**Claude Code** · ativo'`.
-- [ ] **Step 2:** `npx vitest run packages/core/test/format.test.ts packages/vscode/test/tooltip.test.ts` → FAIL.
-- [ ] **Step 3: Implementar** em `format.ts`: `statusText` retorna `'ativo'` se `live` ou `stale` (remove ramo de idade); `formatCountdown(null)` retorna `'janela livre'`.
-- [ ] **Step 4:** mesmo comando → PASS.
-- [ ] **Step 5:** `git add packages && git commit -m "feat(core): status sempre ativo e janela livre"`
+- [x] **Step 2:** `npx vitest run packages/core/test/format.test.ts packages/vscode/test/tooltip.test.ts` → FAIL.
+- [x] **Step 3: Implementar** em `format.ts`: `statusText` retorna `'ativo'` se `live` ou `stale` (remove ramo de idade); `formatCountdown(null)` retorna `'janela livre'`.
+- [x] **Step 4:** mesmo comando → PASS.
+- [x] **Step 5:** `git add packages && git commit -m "feat(core): status sempre ativo e janela livre"`
 
 ### Task 2: Codex sempre ativo
 
