@@ -65,9 +65,9 @@ export class Collector {
     return [...this.snaps.values()];
   }
 
-  async refreshNow(): Promise<void> {
+  async refreshNow(opts?: { force?: boolean }): Promise<void> {
     this.installedStatus.clear();
-    await Promise.all(this.options.providers.map((p) => this.runOnce(p)));
+    await Promise.all(this.options.providers.map((p) => this.runOnce(p, opts)));
   }
 
   intervalOf(id: AgentId): number {
@@ -94,7 +94,7 @@ export class Collector {
     );
   }
 
-  private async runOnce(provider: Provider): Promise<void> {
+  private async runOnce(provider: Provider, opts?: { force?: boolean }): Promise<void> {
     const isInst = await this.isProviderInstalled(provider);
     if (!isInst) {
       this.snaps.set(provider.id, {
@@ -117,7 +117,7 @@ export class Collector {
       }, this.timeoutMs);
     });
     try {
-      const snap = await Promise.race([provider.fetch(controller.signal), timeout]);
+      const snap = await Promise.race([provider.fetch(controller.signal, opts), timeout]);
       this.lastGood.set(provider.id, snap);
       this.snaps.set(provider.id, snap);
       this.interval[provider.id] = this.baseInterval[provider.id];

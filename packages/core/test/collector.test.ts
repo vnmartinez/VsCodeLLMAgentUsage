@@ -119,6 +119,25 @@ describe('Collector', () => {
     expect(byAgent(c, 'antigravity')).toMatchObject({ status: 'unavailable', limits: [] });
   });
 
+  it('refreshNow repassa force ao provider', async () => {
+    const seen: Array<{ force?: boolean } | undefined> = [];
+    const provider: Provider = {
+      id: 'claude',
+      async fetch(_signal, opts) {
+        seen.push(opts);
+        return snap('claude', 1);
+      },
+    };
+    const c = new Collector({ providers: [provider], now: () => NOW });
+    await c.start();
+    seen.length = 0;
+    await c.refreshNow({ force: true });
+    await c.refreshNow();
+    c.stop();
+    expect(seen[0]?.force).toBe(true);
+    expect(seen[1]?.force).toBeFalsy();
+  });
+
   it('SourceFormatError vira unavailable sem números', async () => {
     const c = new Collector({ providers: [fake('antigravity', snap('antigravity', 30), new SourceFormatError('x'))], now: () => NOW });
     await c.start();

@@ -11,11 +11,12 @@ const FIXTURE = JSON.parse(
 const NOW = new Date('2026-09-21T19:00:00Z');
 const TOKEN = 'tok-secreto-de-teste';
 
-function setup(opts: { expiresAt?: number; body?: unknown; status?: number; readFails?: boolean } = {}) {
-  const fetch = vi.fn(
-    async (_url: string, _init?: RequestInit) =>
-      new Response(JSON.stringify(opts.body ?? FIXTURE), { status: opts.status ?? 200 }),
-  );
+function setup(opts: { expiresAt?: number; body?: unknown; status?: number; readFails?: boolean; cooldownMs?: number; statuses?: number[] } = {}) {
+  let call = 0;
+  const fetch = vi.fn(async (_url: string, _init?: RequestInit) => {
+    const status = opts.statuses?.[Math.min(call++, opts.statuses.length - 1)] ?? opts.status ?? 200;
+    return new Response(JSON.stringify(opts.body ?? FIXTURE), { status, headers: { 'retry-after': '300' } });
+  });
   const provider = new ClaudeProvider({
     credentialsPath: 'credenciais.json',
     readFile: async () => {
@@ -26,6 +27,7 @@ function setup(opts: { expiresAt?: number; body?: unknown; status?: number; read
     },
     fetch: fetch as unknown as typeof globalThis.fetch,
     now: () => NOW,
+    cooldownMs: opts.cooldownMs,
   });
   return { provider, fetch };
 }
@@ -70,6 +72,25 @@ describe('ClaudeProvider', () => {
     const error = await setup({ status: 429 }).provider.fetch().catch((e) => e);
     expect(error).toBeInstanceOf(HttpStatusError);
     expect(error.status).toBe(429);
+  });
+
+  it('force ignora o cooldown', async () => {
+    const { provider, fetch } = setup({ cooldownMs: 60_000 });
+    await provider.fetch();
+    await provider.fetch();
+    expect(fetch).toHaveBeenCalledTimes(1);
+    await provider.fetch(undefined, { force: true });
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('force não ignora a janela de 429', async () => {
+    const { provider, fetch } = setup({ statuses: [200, 429] });
+    await provider.fetch();
+    await provider.fetch(undefined, { force: true }).catch(() => undefined);
+    expect(fetch).toHaveBeenCalledTimes(2);
+    const snap = await provider.fetch(undefined, { force: true });
+    expect(snap.status).toBe('stale');
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
 
   it('fica indisponível sem arquivo de credenciais', async () => {

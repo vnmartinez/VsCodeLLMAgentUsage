@@ -28,7 +28,7 @@ export class ClaudeProvider implements Provider {
     return isClaudeInstalled(this.deps.credentialsPath);
   }
 
-  async fetch(signal?: AbortSignal): Promise<AgentSnapshot> {
+  async fetch(signal?: AbortSignal, opts?: { force?: boolean }): Promise<AgentSnapshot> {
     const nowTime = this.deps.now().getTime();
     const cooldown = this.deps.cooldownMs ?? 0;
 
@@ -40,7 +40,7 @@ export class ClaudeProvider implements Provider {
       };
     }
 
-    if (cooldown > 0 && nowTime - this.lastFetchTime < cooldown && this.lastSnapshot) {
+    if (!opts?.force && cooldown > 0 && nowTime - this.lastFetchTime < cooldown && this.lastSnapshot) {
       return this.lastSnapshot;
     }
 

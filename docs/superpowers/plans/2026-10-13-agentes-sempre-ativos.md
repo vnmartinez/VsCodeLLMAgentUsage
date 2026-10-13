@@ -72,13 +72,13 @@
 
 **Interfaces:** Produces: `Provider.fetch(signal?: AbortSignal, opts?: { force?: boolean }): Promise<AgentSnapshot>`; `Collector.refreshNow(opts?: { force?: boolean }): Promise<void>`.
 
-- [ ] **Step 1: Testes (devem falhar)**
+- [x] **Step 1: Testes (devem falhar)**
   - `claude.test.ts` com `cooldownMs: 60_000`: `fetch()` duas vezes seguidas → rede chamada 1×; `fetch(undefined, { force: true })` depois → rede chamada 2×. Caso 429: após resposta 429 com `retry-after`, `fetch(undefined, { force: true })` devolve snapshot `stale` sem nova chamada de rede.
   - `collector.test.ts`: provider fake que grava o `opts` recebido; `refreshNow({ force: true })` → `opts.force === true`; `refreshNow()` → `force` falsy.
-- [ ] **Step 2:** `npx vitest run packages/core/test/claude.test.ts packages/core/test/collector.test.ts` → FAIL.
-- [ ] **Step 3: Implementar** — assinatura em `types.ts`; `collector.ts`: `refreshNow(opts)` → `runOnce(provider, opts)` → `provider.fetch(controller.signal, opts)`; `ClaudeProvider.fetch(signal, opts)`: cooldown só vale se `!opts?.force`; checagem de `rateLimitUntil` fica antes e intacta.
-- [ ] **Step 4:** testes → PASS; `npm run typecheck`.
-- [ ] **Step 5:** commit `feat(core): refreshNow com force`.
+- [x] **Step 2:** `npx vitest run packages/core/test/claude.test.ts packages/core/test/collector.test.ts` → FAIL.
+- [x] **Step 3: Implementar** — assinatura em `types.ts`; `collector.ts`: `refreshNow(opts)` → `runOnce(provider, opts)` → `provider.fetch(controller.signal, opts)`; `ClaudeProvider.fetch(signal, opts)`: cooldown só vale se `!opts?.force`; checagem de `rateLimitUntil` fica antes e intacta.
+- [x] **Step 4:** testes → PASS; `npm run typecheck`.
+- [x] **Step 5:** commit `feat(core): refreshNow com force`.
 
 ### Task 5: Refresh ao abrir o popup e no botão (tray + vscode)
 

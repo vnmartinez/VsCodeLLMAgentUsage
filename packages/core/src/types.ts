@@ -26,7 +26,7 @@ export interface AgentSnapshot {
 export interface Provider {
   readonly id: AgentId;
   isInstalled?(): Promise<boolean>;
-  fetch(signal?: AbortSignal): Promise<AgentSnapshot>;
+  fetch(signal?: AbortSignal, opts?: { force?: boolean }): Promise<AgentSnapshot>;
 }
 
 export const AGENTS: AgentId[] = ['claude', 'codex', 'antigravity'];
