@@ -1,7 +1,7 @@
 {
   "name": "agent-usage-tray",
   "productName": "Agent Usage",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "description": "Limites de 5h e semanal de Claude Code, Codex e Antigravity na bandeja do Windows",
   "author": "Vinicius Martinez",
