@@ -34,7 +34,7 @@
 - Consumes: `parseCodexLine(line: string): CodexReading | null`, `findLatestReading(text: string): CodexReading | null`, helper de teste `fixtureText()`.
 - Produces: mesmas assinaturas; `parseCodexLine` passa a retornar `null` para bucket sem janela.
 
-- [ ] **Step 1: Write the failing tests** em `packages/core/test/codex.test.ts`
+- [x] **Step 1: Write the failing tests** em `packages/core/test/codex.test.ts`
 
 Constante no topo do arquivo (perto de `LIVE_NOW`):
 
@@ -68,28 +68,28 @@ describe('findLatestReading', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `npx vitest run packages/core/test/codex.test.ts`
 Expected: FAIL nos 3 testes novos com `SourceFormatError: ... codex rate_limits`.
 
-- [ ] **Step 3: Implement** em `parse.ts`, logo após a desestruturação:
+- [x] **Step 3: Implement** em `parse.ts`, logo após a desestruturação:
 
 ```ts
 if (primary == null && secondary == null) return null; // bucket sem janela (ex.: premium)
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `npx vitest run packages/core/test/codex.test.ts`
 Expected: PASS em todos, incluindo `rejeita rate_limits com formato inesperado`.
 
-- [ ] **Step 5: Run full suite and typecheck**
+- [x] **Step 5: Run full suite and typecheck**
 
 Run: `npm test` e `npm run typecheck` na raiz.
 Expected: todos passam (92 anteriores + 3 novos), typecheck sem erros.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add packages/core/src/providers/codex/parse.ts packages/core/test/codex.test.ts

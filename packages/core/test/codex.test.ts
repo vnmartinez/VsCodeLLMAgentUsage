@@ -27,6 +27,7 @@ vi.mock('node:fs/promises', async (importOriginal) => {
 
 const FIXTURE = fileURLToPath(new URL('./fixtures/codex-rollout.jsonl', import.meta.url));
 const LIVE_NOW = new Date('2026-09-21T15:35:00Z');
+const PREMIUM_LINE = '{"timestamp":"2026-09-21T15:33:00.000Z","type":"event_msg","payload":{"type":"token_count","rate_limits":{"limit_id":"premium","primary":null,"secondary":null,"credits":{"has_credits":false},"plan_type":"plus"}}}';
 
 async function fixtureText(): Promise<string> {
   return readFile(FIXTURE, 'utf8');
@@ -46,9 +47,27 @@ describe('parseCodexLine', () => {
     expect(reading?.windows).toHaveLength(2);
   });
 
+  it('ignora bucket sem janela (premium)', () => {
+    expect(parseCodexLine(PREMIUM_LINE)).toBeNull();
+    expect(parseCodexLine('{"timestamp":"2026-09-21T15:33:00Z","type":"event_msg","payload":{"type":"token_count","rate_limits":{"limit_id":"premium"}}}')).toBeNull();
+  });
+
   it('rejeita rate_limits com formato inesperado', () => {
     const line = '{"timestamp":"2026-09-21T15:32:42Z","type":"event_msg","payload":{"type":"token_count","rate_limits":{"primary":{"window_minutes":300},"secondary":null}}}';
     expect(() => parseCodexLine(line)).toThrow(SourceFormatError);
+  });
+});
+
+describe('findLatestReading', () => {
+  it('pula linha premium no fim e usa o bucket codex acima', async () => {
+    const text = (await fixtureText()).trimEnd() + '\n' + PREMIUM_LINE + '\n';
+    const reading = findLatestReading(text);
+    expect(reading?.timestamp.toISOString()).toBe('2026-09-21T15:32:42.157Z');
+    expect(reading?.windows).toHaveLength(2);
+  });
+
+  it('retorna null quando só há buckets sem janela', () => {
+    expect(findLatestReading(PREMIUM_LINE + '\n')).toBeNull();
   });
 });
 
