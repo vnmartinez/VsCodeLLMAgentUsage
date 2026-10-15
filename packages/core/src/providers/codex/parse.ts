@@ -35,6 +35,7 @@ export function parseCodexLine(line: string): CodexReading | null {
   const payload = obj?.payload;
   if (obj?.type !== 'event_msg' || payload?.type !== 'token_count' || !payload.rate_limits) return null;
   const { primary, secondary } = payload.rate_limits;
+  if (primary == null && secondary == null) return null; // bucket sem janela (ex.: premium)
   if (!isRawWindow(primary) || !isRawWindow(secondary)) throw new SourceFormatError('codex rate_limits');
   const timestamp = new Date(obj.timestamp);
   if (Number.isNaN(timestamp.getTime())) throw new SourceFormatError('codex timestamp');
