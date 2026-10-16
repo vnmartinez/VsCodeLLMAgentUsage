@@ -1,23 +1,39 @@
 {
-  "response": {
-    "groups": [
-      {
-        "displayName": "Gemini Models",
-        "description": "Models within this group: Gemini Flash, Gemini Pro",
-        "buckets": [
-          { "bucketId": "gemini-weekly", "displayName": "Weekly Limit Remaining", "window": "weekly", "remainingFraction": 0.50940806, "resetTime": "2026-09-23T03:24:57Z" },
-          { "bucketId": "gemini-5h", "displayName": "Five Hour Limit Remaining", "window": "5h", "remainingFraction": 0.8898, "resetTime": "2026-09-21T22:37:35Z" }
-        ]
-      },
-      {
-        "displayName": "Claude and GPT models",
-        "description": "Models within this group: Claude Opus, Claude Sonnet, GPT-OSS",
-        "buckets": [
-          { "bucketId": "3p-weekly", "displayName": "Weekly Limit Remaining", "window": "weekly", "remainingFraction": 1, "resetTime": "2026-09-28T18:09:21Z" },
-          { "bucketId": "3p-5h", "displayName": "Five Hour Limit Remaining", "window": "5h", "remainingFraction": 1, "resetTime": "2026-09-21T23:09:21Z" }
-        ]
-      }
-    ],
-    "description": "Within each group, models share a weekly limit and a 5-hour limit."
+  "conversation_id": "",
+  "status": "SUCCESS",
+  "response": "Gemini Models\tWeekly Limit Remaining\t97%\t2026-10-22T23:49:10Z\n",
+  "duration_seconds": 0,
+  "num_turns": 0,
+  "usage": { "input_tokens": 0, "output_tokens": 0, "thinking_tokens": 0, "cache_read_tokens": 0, "total_tokens": 0 },
+  "command": {
+    "name": "usage",
+    "data": {
+      "description": "Within each group, models share a weekly limit and a 5-hour limit.",
+      "groups": [
+        {
+          "name": "Gemini Models",
+          "description": "Models within this group: Gemini Flash, Gemini Pro",
+          "buckets": [
+            { "id": "gemini-weekly", "name": "Weekly Limit Remaining", "window": "weekly", "remaining_fraction": 0.50940806, "reset_time": "2026-09-23T03:24:57Z" },
+            { "id": "gemini-5h", "name": "Five Hour Limit Remaining", "window": "5h", "remaining_fraction": 0.8898, "reset_time": "2026-09-21T22:37:35Z" }
+          ]
+        },
+        {
+          "name": "Claude and GPT models",
+          "description": "Models within this group: Claude Opus, Claude Sonnet, GPT-OSS",
+          "buckets": [
+            { "id": "3p-weekly", "name": "Weekly Limit Remaining", "window": "weekly", "remaining_fraction": 1, "reset_time": "2026-09-28T18:09:21Z" },
+            { "id": "3p-5h", "name": "Five Hour Limit Remaining", "window": "5h", "remaining_fraction": 1, "reset_time": "2026-09-21T23:09:21Z" }
+          ]
+        },
+        {
+          "name": "Gemini 4 Argon",
+          "description": "For paid Pro plans, Argon quota is separate.",
+          "buckets": [
+            { "id": "gemini-argon-wtu-weekly", "name": "Gemini 4 Argon Weekly Limit", "window": "weekly", "remaining_fraction": 0.6153, "reset_time": "2026-09-24T23:07:24Z" }
+          ]
+        }
+      ]
+    }
   }
 }

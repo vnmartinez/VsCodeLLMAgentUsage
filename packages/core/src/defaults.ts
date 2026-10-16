@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileCache } from './cache';
 import { Collector } from './collector';
 import { AntigravityProvider } from './providers/antigravity/provider';
-import { discoverLanguageServers } from './providers/antigravity/discover';
+import { runAgy } from './providers/antigravity/usage';
 import { ClaudeProvider } from './providers/claude/provider';
 import { CodexProvider } from './providers/codex/provider';
 import type { AgentId } from './types';
@@ -22,7 +22,7 @@ export function createDefaultCollector(options: { intervalsMs?: Partial<Record<A
         cooldownMs: 60_000,
       }),
       new CodexProvider({ sessionsDir: path.join(home, '.codex', 'sessions'), now }),
-      new AntigravityProvider({ discover: () => discoverLanguageServers(), fetch: globalThis.fetch, now }),
+      new AntigravityProvider({ run: runAgy, now }),
     ],
     intervalsMs: options.intervalsMs,
     cache: fileCache(),

@@ -8,10 +8,17 @@ export const DEFAULT_INTERVALS_MS: Record<AgentId, number> = {
   antigravity: 60_000,
 };
 
+/** O antigravity roda o `agy` (~4 s): precisa de folga sobre os 5 s dos agentes locais. */
+export const DEFAULT_TIMEOUTS_MS: Record<AgentId, number> = {
+  claude: 5_000,
+  codex: 5_000,
+  antigravity: 12_000,
+};
+
 export interface CollectorOptions {
   providers: Provider[];
   intervalsMs?: Partial<Record<AgentId, number>>;
-  timeoutMs?: number;
+  timeoutsMs?: Partial<Record<AgentId, number>>;
   maxBackoffMs?: number;
   now?: () => Date;
   cache?: SnapshotCache;
@@ -26,7 +33,7 @@ export class Collector {
   private readonly listeners = new Set<Listener>();
   private readonly baseInterval: Record<AgentId, number>;
   private readonly interval: Record<AgentId, number>;
-  private readonly timeoutMs: number;
+  private readonly timeoutMs: Record<AgentId, number>;
   private readonly maxBackoffMs: number;
   private readonly now: () => Date;
   private readonly installedStatus = new Map<AgentId, boolean>();
@@ -35,7 +42,7 @@ export class Collector {
   constructor(private readonly options: CollectorOptions) {
     this.baseInterval = { ...DEFAULT_INTERVALS_MS, ...options.intervalsMs };
     this.interval = { ...this.baseInterval };
-    this.timeoutMs = options.timeoutMs ?? 5_000;
+    this.timeoutMs = { ...DEFAULT_TIMEOUTS_MS, ...options.timeoutsMs };
     this.maxBackoffMs = options.maxBackoffMs ?? 1_800_000;
     this.now = options.now ?? (() => new Date());
   }
@@ -114,7 +121,7 @@ export class Collector {
       timer = setTimeout(() => {
         controller.abort();
         reject(new Error('tempo esgotado'));
-      }, this.timeoutMs);
+      }, this.timeoutMs[provider.id]);
     });
     try {
       const snap = await Promise.race([provider.fetch(controller.signal, opts), timeout]);

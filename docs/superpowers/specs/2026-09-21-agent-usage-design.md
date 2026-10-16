@@ -25,9 +25,9 @@ Nenhuma é API documentada. Todas podem mudar sem aviso, e o design isola cada u
 |---|---|---|---|
 | Codex | `~/.codex/sessions/AAAA/MM/DD/rollout-*.jsonl`, último evento com `payload.type = "token_count"` | `payload.rate_limits.primary` (`window_minutes = 300`) e `.secondary` (`window_minutes = 10080`): `used_percent`, `resets_at` (epoch em segundos) | Só atualiza quando o Codex é usado |
 | Claude Code | `GET https://api.anthropic.com/api/oauth/usage`, headers `Authorization: Bearer <claudeAiOauth.accessToken>` (de `~/.claude/.credentials.json`) e `anthropic-beta: oauth-2025-04-20` | `five_hour` e `seven_day`: `utilization` (% usado), `resets_at` (ISO 8601) | O token dura poucas horas e só o Claude Code o renova |
-| Antigravity | `POST http://127.0.0.1:<porta HTTP>/exa.language_server_pb.LanguageServerService/RetrieveUserQuotaSummary`, corpo `{}`, headers `Content-Type: application/json` e `x-codeium-csrf-token: <--csrf_token do processo>` | `response.groups[].displayName`, `.buckets[]`: `window` (`5h` ou `weekly`), `remainingFraction` (0–1), `resetTime` (ISO 8601) | Só funciona com a IDE ou a CLI do Antigravity abertas |
+| Antigravity | `agy -p /usage --output-format json --print-timeout 20s` (modo de impressão da CLI, sem abrir TUI) | `command.data.groups[]`: `name`, `buckets[]`: `window` (`5h` ou `weekly`), `remaining_fraction` (0–1), `reset_time` (ISO 8601) | Precisa do `agy` instalado e logado; leva ~4 s por consulta |
 
-Detalhes do Antigravity: o processo é `language_server.exe`, com dois sockets em escuta no `127.0.0.1`. A porta HTTP é a que aceita texto puro (na observação, a maior das duas). O CSRF token vem do argumento `--csrf_token` na linha de comando e muda a cada vez que a IDE abre. São dois grupos com limites independentes: "Gemini Models" e "Claude and GPT models".
+Detalhes do Antigravity: a CLI responde três grupos independentes — "Gemini Models" (`gemini-weekly`, `gemini-5h`), "Claude and GPT models" (`3p-weekly`, `3p-5h`) e "Gemini 4 Argon" (`gemini-argon-wtu-weekly`, só janela semanal; no plano Ultra a cota do Argon entra no bucket maior do Gemini e o grupo não aparece). A fonte antiga (o `RetrieveUserQuotaSummary` do `language_server.exe` da IDE, com token CSRF da linha de comando) foi trocada em 2026-10-16: ela só respondia com a IDE aberta e não trazia o Gemini 4.
 
 ## Arquitetura
 
@@ -74,7 +74,7 @@ Normalização:
 
 - Codex: `usedPct = used_percent`.
 - Claude: `usedPct = utilization`.
-- Antigravity: `usedPct = (1 - remainingFraction) * 100`. Os nomes de grupo viram "Gemini" e "Claude/GPT".
+- Antigravity: `usedPct = (1 - remaining_fraction) * 100`. Os nomes de grupo viram "Gemini", "Claude/GPT" e "Gemini 4".
 
 ### Providers
 
@@ -82,12 +82,12 @@ Cada provider separa o I/O (ler arquivo, rodar processo, HTTP), que é injetado,
 
 - **CodexProvider:** acha o rollout mais recente, procurando de hoje para trás até 7 dias. Lê o arquivo do fim para o começo até achar o último `token_count` com `rate_limits`. `status` é `live` se o evento tem menos de 10 min e `stale` se é mais antigo. Se o `resetsAt` de uma janela já passou, ela vira `usedPct = 0` com a nota "janela reiniciada desde a última leitura".
 - **ClaudeProvider:** lê `~/.claude/.credentials.json`. Se o `expiresAt` já passou, devolve `stale` com os limites do cache e a nota "token expirado, abra o Claude Code". Se não passou, chama a API. Nunca renova o token nem escreve no arquivo.
-- **AntigravityProvider:** descobre os `language_server.exe` via `Get-CimInstance Win32_Process` (child_process + PowerShell), extrai `--csrf_token` e lista as portas em escuta com `Get-NetTCPConnection`. Tenta cada processo e porta até um responder `200`. Guarda pid, porta e token em memória e só redescobre quando uma chamada falha. Sem processo, devolve `unavailable` com o último valor em cache e a nota "Antigravity fechado".
+- **AntigravityProvider:** roda `agy -p /usage --output-format json` (`child_process.execFile`, sem TUI; os mesmos argumentos do Orca) e lê os grupos do JSON. Processo ausente, erro de saída ou resposta sem os grupos viram `unavailable` quieto (mantém o último valor em cache); bucket com formato diferente lança `SourceFormatError`.
 
 ### Coletor
 
 - Roda cada provider no seu intervalo (padrões configuráveis): Claude a cada 300 s, Codex e Antigravity a cada 60 s.
-- Cada execução tem timeout de 5 s e try/catch próprio. A falha de um provider não afeta os outros.
+- Cada execução tem timeout próprio por agente (5 s; 12 s no Antigravity, que roda o `agy` em ~4 s) e try/catch próprio. A falha de um provider não afeta os outros.
 - Mantém o último snapshot bom por agente. Em caso de erro, publica esse snapshot como `stale` com o motivo em `note`.
 - Resposta `429` da API do Claude dobra o intervalo dele, até no máximo 1800 s. O intervalo volta ao padrão no primeiro sucesso.
 - Expõe `subscribe(listener)`, `refreshNow()` e `current(): AgentSnapshot[]`.
@@ -126,8 +126,8 @@ $(pulse) CC 12/46  CX 58/41  AG 11/49
 
 ## Segurança
 
-- Os tokens (OAuth do Claude e CSRF do Antigravity) ficam só na memória, durante a chamada. Nunca vão para log, cache ou mensagem de erro.
-- Cada token só vai para a própria origem: o OAuth para `api.anthropic.com`, o CSRF para `127.0.0.1`.
+- Os tokens (OAuth do Claude) ficam só na memória, durante a chamada. Nunca vão para log, cache ou mensagem de erro.
+- Cada token só vai para a própria origem: o OAuth para `api.anthropic.com`. A cota do Antigravity vem do `agy`, que cuida da própria credencial — o app segue sem tocar nela.
 - O app só lê `~/.claude`, `~/.codex` e `~/.gemini`, nunca escreve neles.
 - O cache em disco não guarda dados pessoais (nome e e-mail vindos de qualquer fonte são descartados).
 
@@ -140,7 +140,7 @@ $(pulse) CC 12/46  CX 58/41  AG 11/49
   - evento Codex antigo (`stale`);
   - token Claude expirado;
   - Claude `401` e `429` (backoff);
-  - Antigravity sem processo, com mais de um processo e com porta errada;
+  - Antigravity: JSON do `agy` com os três grupos, bucket sem `remaining_fraction`, `used_pct` fora da faixa, janela desconhecida, saída não-JSON e `agy` antigo (sem o comando `usage`);
   - formato inesperado (`unavailable` com a nota "formato da fonte mudou").
 - **Coletor:** isolamento de falha entre providers, timeout, fallback para o último snapshot bom, persistência e carga de `last.json`.
 - **Frontends:** funções puras de formatação testadas (texto da status bar, tooltip, faixa de cor, contagem regressiva, texto do ícone). A interface é verificada com um teste manual rápido.
