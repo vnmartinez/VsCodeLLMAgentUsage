@@ -25,7 +25,8 @@ const VIEWS: AgentView[] = [
 
 describe('tooltipMarkdown', () => {
   it('lista agentes, janelas, marcas de faixa e notas', () => {
-    const md = tooltipMarkdown(VIEWS);
+    const md = tooltipMarkdown(VIEWS, '0.2.2');
+    expect(md.startsWith('**Agent Usage v0.2.2**')).toBe(true);
     expect(md).toContain('**Claude Code** · ativo');
     expect(md).toContain('5h: **12%** · reinicia em 3h56');
     expect(md).toContain('Semanal: **96%** ⛔ · reinicia em 3d 6h');

@@ -16,11 +16,12 @@ export function activate(context: vscode.ExtensionContext): void {
   item.show();
 
   const collector = createDefaultCollector({ intervalsMs: intervals() });
+  const version = context.extension.packageJSON.version as string;
 
   const render = () => {
     const snaps = collector.current();
     item.text = statusBarText(snaps);
-    item.tooltip = new vscode.MarkdownString(tooltipMarkdown(buildViewModel(snaps, new Date())));
+    item.tooltip = new vscode.MarkdownString(tooltipMarkdown(buildViewModel(snaps, new Date()), version));
     const band = worstBand(snaps);
     item.backgroundColor =
       band === 'critical'

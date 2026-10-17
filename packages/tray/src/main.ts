@@ -162,12 +162,6 @@ if (!app.requestSingleInstanceLock()) {
       Menu.buildFromTemplate([
         { label: 'Abrir painel', click: togglePopup },
         { label: 'Atualizar agora', click: () => void refreshForced(collector) },
-        {
-          label: 'Iniciar com o Windows',
-          type: 'checkbox',
-          checked: app.getLoginItemSettings().openAtLogin,
-          click: (item) => app.setLoginItemSettings({ openAtLogin: item.checked }),
-        },
         { type: 'separator' },
         {
           label: 'Sair',
