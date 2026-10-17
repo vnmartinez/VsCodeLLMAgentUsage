@@ -5,6 +5,7 @@ declare global {
     agentUsage: {
       onModel(callback: (views: AgentView[]) => void): void;
       getModel(): Promise<AgentView[]>;
+      getVersion(): Promise<string>;
       refreshNow(): Promise<void>;
     };
   }
@@ -64,3 +65,6 @@ if (refreshBtn) {
 
 window.agentUsage.onModel(render);
 void window.agentUsage.getModel().then(render);
+
+const versionLabel = document.getElementById('version');
+if (versionLabel) void window.agentUsage.getVersion().then((v) => (versionLabel.textContent = `v${v}`));

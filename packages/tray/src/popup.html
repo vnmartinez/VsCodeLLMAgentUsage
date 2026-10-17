@@ -14,6 +14,7 @@
     body { margin: 0; padding: 12px 14px; background: var(--bg); color: var(--fg); font: 13px 'Segoe UI', sans-serif; user-select: none; }
     .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--track); }
     .toolbar-title { font-weight: 600; font-size: 13px; }
+    .version { color: var(--muted); font-weight: 400; font-size: 11px; }
     .btn-refresh {
       background: var(--btn-bg); color: var(--fg); border: 1px solid var(--track);
       border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer;
@@ -39,7 +40,7 @@
 </head>
 <body>
   <header class="toolbar">
-    <span class="toolbar-title">Agent Usage</span>
+    <span class="toolbar-title">Agent Usage <span class="version" id="version"></span></span>
     <button id="refreshBtn" class="btn-refresh" type="button">↻ Atualizar tudo</button>
   </header>
   <main id="root">carregando…</main>

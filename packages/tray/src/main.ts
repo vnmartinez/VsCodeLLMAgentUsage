@@ -139,6 +139,7 @@ if (!app.requestSingleInstanceLock()) {
 
     const model = () => (collector ? buildViewModel(collector.current(), new Date()) : []);
     ipcMain.handle('get-model', () => model());
+    ipcMain.handle('get-version', () => app.getVersion());
     ipcMain.handle('refresh-now', () => refreshForced(collector));
 
     popup.on('blur', () => {

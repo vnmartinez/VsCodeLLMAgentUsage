@@ -8,8 +8,8 @@
 
 <p align="center">
   <a href="https://github.com/vnmartinez/VsCodeLLMAgentUsage/releases/latest"><img src="https://img.shields.io/github/v/release/vnmartinez/VsCodeLLMAgentUsage?label=Release&color=2e9e5b" alt="Latest Release" /></a>
-  <a href="https://github.com/vnmartinez/VsCodeLLMAgentUsage/releases/download/v0.2.2/Agent.Usage.Setup.0.2.2.exe"><img src="https://img.shields.io/badge/Download-Windows%20Installer-0078d4?logo=windows" alt="Download Windows Installer" /></a>
-  <a href="https://github.com/vnmartinez/VsCodeLLMAgentUsage/releases/download/v0.2.2/agent-usage-0.2.2.vsix"><img src="https://img.shields.io/badge/Download-VS%20Code%20VSIX-007acc?logo=visualstudiocode" alt="Download VSIX" /></a>
+  <a href="https://github.com/vnmartinez/VsCodeLLMAgentUsage/releases/download/v0.2.3/Agent.Usage.Setup.0.2.3.exe"><img src="https://img.shields.io/badge/Download-Windows%20Installer-0078d4?logo=windows" alt="Download Windows Installer" /></a>
+  <a href="https://github.com/vnmartinez/VsCodeLLMAgentUsage/releases/download/v0.2.3/agent-usage-0.2.3.vsix"><img src="https://img.shields.io/badge/Download-VS%20Code%20VSIX-007acc?logo=visualstudiocode" alt="Download VSIX" /></a>
 </p>
 
 ---
@@ -41,7 +41,7 @@
 
 ### 1. Aplicativo de Bandeja (Windows)
 
-1. Baixe o instalador mais recente: **[Agent Usage Setup 0.2.2.exe](https://github.com/vnmartinez/VsCodeLLMAgentUsage/releases/download/v0.2.2/Agent.Usage.Setup.0.2.2.exe)**.
+1. Baixe o instalador mais recente: **[Agent Usage Setup 0.2.3.exe](https://github.com/vnmartinez/VsCodeLLMAgentUsage/releases/download/v0.2.3/Agent.Usage.Setup.0.2.3.exe)**.
 2. Execute o instalador (instalação com 1 clique).
 3. O ícone aparecerá na área de notificação da barra de tarefas (ao lado do relógio ou no menu chevron `^`).
 4. O app entra na inicialização do Windows automaticamente — a entrada é criada pelo instalador e removida ao desinstalar.
@@ -51,8 +51,8 @@
 
 ### 2. Extensão para VS Code
 
-1. Baixe o pacote da extensão: **[agent-usage-0.2.2.vsix](https://github.com/vnmartinez/VsCodeLLMAgentUsage/releases/download/v0.2.2/agent-usage-0.2.2.vsix)**.
-2. No VS Code, abra o menu de Extensões (`Ctrl+Shift+X`), clique nos três pontinhos (`...`) no canto superior e selecione **"Install from VSIX..."** (ou execute via terminal: `code --install-extension agent-usage-0.2.2.vsix`).
+1. Baixe o pacote da extensão: **[agent-usage-0.2.3.vsix](https://github.com/vnmartinez/VsCodeLLMAgentUsage/releases/download/v0.2.3/agent-usage-0.2.3.vsix)**.
+2. No VS Code, abra o menu de Extensões (`Ctrl+Shift+X`), clique nos três pontinhos (`...`) no canto superior e selecione **"Install from VSIX..."** (ou execute via terminal: `code --install-extension agent-usage-0.2.3.vsix`).
 
 ---
 
